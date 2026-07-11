@@ -14,3 +14,14 @@
             External IP address
             custom ssh key to login to server 
 
+2) Configuration to Run application in ubuntu server
+        referance: https://medium.com/@mynameischandangupta1/how-to-install-flask-on-ubuntu-84bce8419dc0
+
+                sudo apt update && apt upgrade -y
+                sudo apt-get install python3-pip
+                pip3 install Flask
+                sudo apt install vim
+                vi app.py  and then updaet sample code from the above url
+                python3 app.py
+
+                Open a web browser and go to http://ubuntu-externalIP:5000. You should see “Hello, World!” displayed.
