@@ -50,13 +50,11 @@
         </table>
     </div>
     
-    <button id="sellingBtn" class="btn-selling">Selling</button>
-
-    <div id="loginWarning" class="login-warning">
-        ⚠️ You must log in to view and submit this page's contents.
-    </div>
-    
     <div id="selling-tab" class="tab-content">
+        <div id="selling-logged-out-msg" style="color: red; font-weight: bold;">
+            ⚠️ You must log in via the "User Info" tab to post or manage listings.
+        </div>
+
         <div id="selling-authorized-zone" style="display: none;">
             <h3 id="form-title">Post a New Used Item Ad</h3>
             <input type="hidden" id="item-id">
@@ -77,28 +75,39 @@
                     <option value="General">General/Other</option>
                 </select>
             </div>
+            <div class="form-group">
+                <label>Price (EUR &euro;):</label>
+                <input type="number" id="price" step="0.01">
+            </div>
+            
+            <div class="form-group" id="status-container" style="display:none;">
+                <label>Status:</label>
+                <select id="status">
+                    <option value="Available">Available</option>
+                    <option value="On Hold">On Hold</option>
+                    <option value="Sold">Sold</option>
+                </select>
+            </div>
+            
+            <button type="button" id="btn-save" onclick="saveListing()">Post Advertisement</button>
+            <button type="button" id="btn-cancel" onclick="resetForm()" style="display:none;">Cancel Edit</button>
+            
+            <hr>
+            <h3>Your Managed Ads</h3>
+            <table border="1">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Item Title</th>
+                        <th>Category</th>
+                        <th>Price (EUR)</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="selling-table-body"></tbody>
+            </table>
         </div>
-    </div>
-
-
-    <div class="list-container">
-        <h3>Your Managed Ads</h3>
-        <table>
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Item Title</th>
-                    <th>Category</th>
-                    <th>Price (EUR)</th>
-                    <th>Status</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody id="selling-table-body">
-                </tbody>
-        </table>
-    </div>
-        
     </div>
 
 </body>
