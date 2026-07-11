@@ -32,13 +32,18 @@
 
     <div id="buying-tab" class="tab-content active">
         <h3>Active Marketplace Listings</h3>
-        <p>Search Ads: <input type="text" id="search-input" onkeyup="loadListings()" ></p>
+        <p>Search Ads: <input type="text" id="search-input" onkeyup="loadListings()" placeholder="Search items or categories..."></p>
         <table border="1">
             <thead>
                 <tr>
                     <th>Item Title</th>
                     <th>Category</th>
                     <th>Price (EUR)</th>
+                    <th>Price (USD)</th>
+                    <th>Seller</th>
+                    <th>Status</th>
+                    <th>Contact</th>
+                    <th>Action</th>
                 </tr>
             </thead>
             <tbody id="buying-table-body"></tbody>
