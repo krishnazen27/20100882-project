@@ -30,5 +30,20 @@
         <button class="tab-button" onclick="switchTab('user-tab')">User Info / Login</button>
     </div>
 
+    <div id="buying-tab" class="tab-content active">
+        <h3>Active Marketplace Listings</h3>
+        <p>Search Ads: <input type="text" id="search-input" onkeyup="loadListings()" ></p>
+        <table border="1">
+            <thead>
+                <tr>
+                    <th>Item Title</th>
+                    <th>Category</th>
+                    <th>Price (EUR)</th>
+                </tr>
+            </thead>
+            <tbody id="buying-table-body"></tbody>
+        </table>
+    </div>
+
 </body>
 </html>
