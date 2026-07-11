@@ -19,9 +19,14 @@
 
                 sudo apt update && apt upgrade -y
                 sudo apt-get install python3-pip
+                apt install python3.12-venv
+                #enter in to project folder and execute below commands
+                python3 -m venv venv
+                source venv/bin/activate
                 pip3 install Flask
                 sudo apt install vim
                 vi app.py  and then updaet sample code from the above url
                 python3 app.py
 
                 Open a web browser and go to http://ubuntu-externalIP:5000. You should see “Hello, World!” displayed.
+                ![Hello World Page](images/sample-hello-world.jpg)
