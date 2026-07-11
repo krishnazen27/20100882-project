@@ -29,4 +29,4 @@
                 python3 app.py
 
                 Open a web browser and go to http://ubuntu-externalIP:5000. You should see “Hello, World!” displayed.
-                ![Hello World Page](images/sample-hello-world.jpg)
+                ![Hello World Page](images/sample-helloworld.png)
