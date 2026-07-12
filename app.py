@@ -53,22 +53,17 @@ def get_external_price_in_usd(amount_eur):
 def serve_frontend_page():
     return render_template('index.html')
 
-@app.route('/api/register', methods=['POST'])
-def register_user():
+@app.route('/api/auth/register', methods=['POST'])
+def register():
     data = request.get_json()
     if not data or not data.get('username') or not data.get('password') or not data.get('contact_info'):
-        return jsonify({"error": "Missing required fields"}), 400
+        return jsonify({"error": "All fields are required"}), 400
 
-    username = data['username']
-    password_hash = generate_password_hash(data['password'])
-    contact_info = data['contact_info']
-
+    hashed_password = generate_password_hash(data['password'])
     conn = get_db_connection()
     try:
-        conn.execute(
-            'INSERT INTO users (username, password_hash, contact_info) VALUES (?, ?, ?)',
-            (username, password_hash, contact_info)
-        )
+        conn.execute('INSERT INTO users (username, password_hash, contact_info) VALUES (?, ?, ?)',
+                     (data['username'], hashed_password, data['contact_info']))
         conn.commit()
     except sqlite3.IntegrityError:
         conn.close()
