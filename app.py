@@ -14,6 +14,7 @@ DB_FILE = 'classifieds.db'
 def get_db_connection():
     conn = sqlite3.connect(DB_FILE)
     conn.row_factory = sqlite3.Row
+    conn.execute("PRAGMA foreign_keys = ON;") # Enforce data relationships
     return conn
 
 def init_db():
@@ -33,7 +34,9 @@ def init_db():
             price_eur REAL NOT NULL,
             seller_name TEXT NOT NULL,
             contact_info TEXT NOT NULL,
-            status TEXT NOT NULL DEFAULT 'Available'                
+            status TEXT NOT NULL DEFAULT 'Available',
+            seller_id INTEGER,
+            FOREIGN KEY(seller_id) REFERENCES users(id) ON DELETE SET NULL                
         )''')
     conn.commit()
     conn.close()
