@@ -39,6 +39,7 @@ The core infrastructure operates on a decentralized Single-Page-Application mode
 │
 └── images/                 # Asset media gallery
     └── sample-helloworld.png   # System verification capture screenshot
+
 ```
 ---
 
