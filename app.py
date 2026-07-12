@@ -12,6 +12,19 @@ def get_db_connection():
     conn.row_factory = sqlite3.Row
     return conn
 
+def init_db():
+    conn = get_db_connection()
+    conn.execute('''
+        CREATE TABLE IF NOT EXISTS classifieds (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            title TEXT NOT NULL,
+            description TEXT NOT NULL,
+            price REAL NOT NULL,
+            contact_info TEXT NOT NULL
+        )
+    ''')
+    conn.commit()
+    conn.close()
 
 @app.route('/')
 def serve_frontend_page():
