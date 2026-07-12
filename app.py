@@ -73,6 +73,19 @@ def update_listing(item_id):
     conn.close()
     return jsonify({"message": "Listing updated successfully!"}), 200
 
+@app.route('/api/listings/<int:item_id>', methods=['DELETE'])
+def delete_listing(item_id):
+    conn = get_db_connection()
+    item = conn.execute('SELECT * FROM listings WHERE id = ?', (item_id,)).fetchone()
+    if not item:
+        conn.close()
+        return jsonify({"error": "Listing not found"}), 404
+
+    conn.execute('DELETE FROM listings WHERE id = ?', (item_id,))
+    conn.commit()
+    conn.close()
+    return jsonify({"message": "Listing deleted successfully!"}), 200
+
 if __name__ == '__main__':
     init_db()
     app.run(debug=True, port=5000, host='0.0.0.0')
