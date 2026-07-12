@@ -24,8 +24,32 @@ opener = urllib.request.build_opener(urllib.request.HTTPCookieProcessor(cookie_j
 urllib.request.install_opener(opener)
 
 def register_and_login_users():
+    """Registers all seed accounts and keeps track of authentication parameters."""
     print("Initializing user database registration and mapping sessions...")
-    # TODO: wire this up to the real /api/auth/register endpoint
+    for user in seed_users:
+        contact_info = f"{user.lower()}26@{random.choice(domains)}"
+        password = f"password_{user.lower()}"
+        
+        # 1. Register Account
+        reg_payload = json.dumps({
+            "username": user,
+            "password": password,
+            "contact_info": contact_info
+        }).encode('utf-8')
+        
+        reg_req = urllib.request.Request(
+            f"{API_BASE}/auth/register",
+            data=reg_payload,
+            headers={'Content-Type': 'application/json'},
+            method='POST'
+        )
+        
+        try:
+            with urllib.request.urlopen(reg_req, timeout=3) as response:
+                pass
+        except Exception:
+            # If user already exists (409), just ignore and proceed
+            pass
 
 def seed_database(count=10):
     register_and_login_users()
