@@ -237,16 +237,18 @@
 
         async function buyNowByIndex(index) {
             const item = globalListingsCache[index];
-            if (!item) return alert("Item not found.");
-            if (!confirm(`Are you sure you want to purchase "${item.title}" for €${item.price_eur}?`)) return;
+            if (!item) return;
+            if (!confirm(`Are you sure you want to purchase "${item.title}"?`)) return;
 
-            const payload = { item_id: item.id, buyer_id: currentUser ? currentUser.id : null };
-
+            const payload = { ...item, status: 'Sold' };
             try {
-                const response = await fetch(`${API_BASE}/listings/${item.id}/buy`, { method: 'POST' });
-                if (response.ok) { alert("Purchase successful!"); loadListings(); }
-                else { alert("Purchase failed. Please try again."); }
-            } catch (error) { console.error(error); alert("An error occurred during purchase."); }
+                const response = await fetch(`${API_BASE}/listings/${item.id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                if (response.ok) { alert("Success! Purchased."); loadListings(); }
+            } catch (error) { console.error(error); }
         }
 
         async function saveListing() {
