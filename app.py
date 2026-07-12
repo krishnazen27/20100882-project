@@ -174,11 +174,19 @@ def update_listing(item_id):
 
 @app.route('/api/listings/<int:item_id>', methods=['DELETE'])
 def delete_listing(item_id):
+    # Explicit enforcement: must be logged in to delete an ad
+    if 'user_id' not in session:
+        return jsonify({"error": "Authentication required to delete an ad"}), 401
+    
     conn = get_db_connection()
     item = conn.execute('SELECT * FROM listings WHERE id = ?', (item_id,)).fetchone()
     if not item:
         conn.close()
         return jsonify({"error": "Listing not found"}), 404
+    
+    if item['seller_id'] != session['user_id']:
+        conn.close()
+        return jsonify({"error": "Unauthorized deletion attempt as You do not own this ad"}), 403
 
     conn.execute('DELETE FROM listings WHERE id = ?', (item_id,))
     conn.commit()
