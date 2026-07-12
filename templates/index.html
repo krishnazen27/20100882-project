@@ -235,6 +235,7 @@
             } catch (error) { console.error("Data load matrix error:", error); }
         }
 
+        // Marks a listing as Sold via a simulated one-click checkout
         async function buyNowByIndex(index) {
             const item = globalListingsCache[index];
             if (!item) return;
@@ -286,6 +287,7 @@
             
         }
 
+        // Fills the form with an existing ad's data for editing
         function populateEditForm(item) {
             document.getElementById('form-title').innerText = `Modify Ad (ID: ${item.id})`;
             document.getElementById('item-id').value = item.id;

@@ -1,4 +1,6 @@
 import sqlite3
+import urllib.request
+import json
 from flask import Flask, render_template, request, jsonify
 from flask_cors import CORS
 
@@ -26,6 +28,42 @@ def init_db():
         )''')
     conn.commit()
     conn.close()
+
+def convert_eur_to_usd_open_er(euro_amount):
+    """
+    Converts Euros (EUR) to US Dollars (USD) using the free, 
+    no-key open access endpoint at open.er-api.com.
+    """
+    # The open.er-api.com route using EUR as the base currency
+    url = "https://open.er-api.com/v6/latest/EUR"
+    
+    try:
+        # Open URL and pull the data
+        with urllib.request.urlopen(url, timeout=5) as response:
+            if response.status == 200:
+                data = json.loads(response.read().decode())
+                
+                # Verify that the API check was successful
+                if data.get("result") == "success":
+                    # Extract the live rate mapping for USD
+                    usd_rate = data["rates"]["USD"]
+                    
+                    # Compute total value
+                    total_usd = euro_amount * usd_rate
+                    
+                    print(f"📊 Live Rate from open.er-api: 1 EUR = {usd_rate:.4f} USD")
+                    return round(total_usd, 2)
+                else:
+                    raise Exception("API returned an unsuccessful status.")
+            else:
+                raise Exception(f"HTTP Server error: Status {response.status}")
+                
+    except Exception as e:
+        print(f"⚠️ Could not pull live data via open.er-api: {e}")
+        # Local fallback option
+        fallback_rate = 1.12
+        print(f"Using fallback conversion rate: 1 EUR = {fallback_rate} USD")
+        return round(euro_amount * fallback_rate, 2)
 
 @app.route('/')
 def serve_frontend_page():
