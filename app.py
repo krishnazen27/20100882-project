@@ -9,10 +9,14 @@ app = Flask(__name__, template_folder='templates')
 app.secret_key = 'super_secret_dev_key_for_session_management' 
 CORS(app, supports_credentials=True)
 
-DB_FILE = 'classifieds.db'
+
+def get_db_file():
+    if app.config.get('TESTING'):
+        return 'test_classifieds.db'
+    return 'classifieds.db'
 
 def get_db_connection():
-    conn = sqlite3.connect(DB_FILE)
+    conn = sqlite3.connect(get_db_file())
     conn.row_factory = sqlite3.Row
     conn.execute("PRAGMA foreign_keys = ON;") # Enforce data relationships
     return conn
