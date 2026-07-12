@@ -38,5 +38,11 @@ class MarketplaceTestCase(unittest.TestCase):
         self.assertEqual(response.status_code, 201)
         self.assertIn("id", data)
 
+    def test_missing_input_validation(self):
+        """INTEGRITY TEST: Assures server rejects incomplete parameters."""
+        payload = {"title": "Free Sofa"}
+        response = self.app.post('/api/listings', data=json.dumps(payload), content_type='application/json')
+        self.assertEqual(response.status_code, 400)
+
 if __name__ == '__main__':
     unittest.main(verbosity=2)
