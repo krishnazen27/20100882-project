@@ -103,11 +103,7 @@ def get_session():
     if 'user_id' in session:
         return jsonify({
             "logged_in": True,
-            "user": {
-                "id": session['user_id'],
-                "username": session['username'],
-                "contact_info": session['contact_info']
-            }
+            "user": {"id": session['user_id'], "username": session['username'], "contact_info": session['contact_info']}
         }), 200
     return jsonify({"logged_in": False}), 200
 
