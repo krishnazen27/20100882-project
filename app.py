@@ -1,5 +1,4 @@
 import sqlite3
-from turtle import title
 from flask import Flask, render_template, request, jsonify
 from flask_cors import CORS
 
