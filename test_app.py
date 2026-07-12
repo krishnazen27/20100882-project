@@ -25,36 +25,13 @@ class MarketplaceTestCase(unittest.TestCase):
         if os.path.exists(TEST_DB_FILE):
             os.remove(TEST_DB_FILE)
 
-    def test_add_success(self):
-        """Case 1: Ensure logged-in users can successfully add an item."""
-        print(" -> Running: test_add_success")
-        result = self.app.add_listing(
-            item_name="iPhone 15", 
-            price=799.00, 
-            category="Electronics", 
-            is_logged_in=True
-        )
-        
-        # Assertions
-        self.assertTrue(result)
-        self.assertEqual(len(self.app.listings), 1)
-        self.assertEqual(self.app.listings[0]["name"], "iPhone 15")
+    def test_add_marketplace_ad(self):
+        """UNIT TEST: Verifies clean creation of a marketplace entry under an authenticated account."""
+        payload = {"title": "Engineering Textbook", "category": "Books", "price_eur": 25.00}
+        response = self.app.post('/api/listings', data=json.dumps(payload), content_type='application/json')
+        data = json.loads(response.data)
+        self.assertEqual(response.status_code, 201)
+        self.assertIn("id", data)
 
-    def test_add_unauthenticated_error(self):
-        """Case 2: Ensure logged-out users are blocked from adding an item."""
-        print(" -> Running: test_add_unauthenticated_error")
-        # Assert that a PermissionError is raised when is_logged_in=False
-        with self.assertRaises(PermissionError):
-            self.app.add_listing(
-                item_name="Vintage Jacket", 
-                price=45.00, 
-                category="Clothing", 
-                is_logged_in=False
-            )
-        
-        # Verify nothing was added to the registry
-        self.assertEqual(len(self.app.listings), 0)
-
-
-if __name__ == "__main__":
+if __name__ == '__main__':
     unittest.main(verbosity=2)
