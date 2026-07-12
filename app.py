@@ -67,22 +67,19 @@ def serve_frontend_page():
 is_logged_in = False 
 
 @app.route('/')
-def home():
-    """Renders the Buying feed tab."""
-    return render_template('index.html')
+def route_buying_tab():
+    """Serves the main catalog browser marketplace screen."""
+    return render_template('buying.html', active_page='buying')
 
 @app.route('/selling')
-def selling():
-    """Renders the Selling tab with an auth check guardrail."""
-    if not is_logged_in:
-        flash("⚠️ Access Denied: You must be logged in to view the Selling contents.")
-        return redirect(url_for('home'))
-    return render_template('selling.html')
+def route_selling_tab():
+    """Serves the advertisement creation and management dashboard."""
+    return render_template('selling.html', active_page='selling')
 
-@app.route('/login')
-def profile():
-    """Renders the User Profile page tab."""
-    return render_template('profile.html')
+@app.route('/profile')
+def route_profile_tab():
+    """Serves the login, register, and active configuration profile data."""
+    return render_template('login.html', active_page='profile')
 
 # --- AUTHENTICATION API ENDPOINTS ---
 @app.route('/api/auth/register', methods=['POST'])
