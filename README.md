@@ -30,3 +30,37 @@
 
                 Open a web browser and go to http://ubuntu-externalIP:5000. You should see “Hello, World!” displayed.
 ![Hello World Page](images/sample-helloworld.png)
+
+3) project files and features.
+
+    Features
+        Browse / search listings, with live EUR -> USD price conversion
+        Register / log in / log out (session based auth)
+        Post, edit, delete your own ads
+        "Buy Now" flow that marks a listing as Sold
+        Ownership checks: only the seller who posted an ad can edit or delete it
+
+
+# Dublin Classifieds Marketplace
+
+A localized, peer-to-peer peer classifieds exchange engine engineered using a modern lightweight Python stack. This full-stack system allows users to securely register accounts, sign in securely, post structured listings, edit asset data entries, and purchase goods using an asynchronous single-page checkout configuration.
+
+---
+
+## 📂 Project File & Folder Structure
+
+```text
+20100882-project-development/
+│
+├── app.py                  # Core Flask backend server (Routes, API endpoints, SQLite hooks)
+├── seed_data.py            # Automation engine to script and inject mock data profiles
+├── test_app.py            # Automated test suite (Unittest assertions for endpoints)
+├── requirements.txt        # Managed Python library dependencies manifests
+├── .gitignore              # Tracking exclusions filter (ignores venv/ and database files)
+├── README.md               # Infrastructure documentation and deployment reference manual
+│
+├── templates/              # Presentation layer directory
+│   └── index.html          # Single Page Application (SPA) client UI interface
+│
+└── images/                 # Asset media gallery
+    └── sample-helloworld.png   # System verification capture screenshot
