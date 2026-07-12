@@ -158,6 +158,11 @@ def update_listing(item_id):
     if not item:
         conn.close()
         return jsonify({"error": "Listing not found"}), 404
+    
+
+    if data.get('status') not in 'Sold' and ('user_id' not in session or session['user_id'] != item['seller_id']):
+        conn.close()
+        return jsonify({"error": "Unauthorized to update this listing"}), 403
 
     conn.execute(
         'UPDATE listings SET title = ?, category = ?, price_eur = ?, status = ? WHERE id = ?',
