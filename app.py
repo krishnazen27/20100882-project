@@ -1,10 +1,12 @@
 import sqlite3
 import urllib.request
 import json
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, session
+from werkzeug.security import generate_password_hash, check_password_hash
 from flask_cors import CORS
 
 app = Flask(__name__, template_folder='templates')
+app.secret_key = 'super_secret_dev_key_for_session_management' 
 CORS(app, supports_credentials=True)
 
 DB_FILE = 'classifieds.db'
@@ -16,6 +18,13 @@ def get_db_connection():
 
 def init_db():
     conn = get_db_connection()
+    conn.execute('''
+        CREATE TABLE IF NOT EXISTS users (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            username TEXT NOT NULL UNIQUE,
+            password_hash TEXT NOT NULL,
+            contact_info TEXT NOT NULL
+        )''')
     conn.execute('''
         CREATE TABLE IF NOT EXISTS listings (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
