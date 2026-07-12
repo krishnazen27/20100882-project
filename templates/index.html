@@ -163,6 +163,54 @@
             event.currentTarget.classList.add('active');
             loadListings();
         }
+
+        async function loadListings() {
+            const searchQuery = document.getElementById('search-input').value.toLowerCase();
+            try {
+                const response = await fetch(`${API_BASE}/listings`);
+                if (!response.ok) throw new Error('Failed to fetch listings');
+                const listings = await response.json();
+                globalListingsCache = listings;
+
+                const buyingTableBody = document.getElementById('buying-table-body');
+                const sellingTableBody = document.getElementById('selling-table-body');
+                buyingTableBody.innerHTML = '';
+                sellingTableBody.innerHTML = '';
+
+                listings.forEach(listing => {
+                    if (listing.title.toLowerCase().includes(searchQuery) || listing.category.toLowerCase().includes(searchQuery)) {
+                        const priceUSD = (listing.price * 1.1).toFixed(2);
+                        const buyingRow = `<tr>
+                            <td>${listing.title}</td>
+                            <td>${listing.category}</td>
+                            <td>${listing.price.toFixed(2)}</td>
+                            <td>${priceUSD}</td>
+                            <td>${listing.seller}</td>
+                            <td>${listing.status}</td>
+                            <td>${listing.contact}</td>
+                            <td><button class="btn-buy" onclick="buyItem(${listing.id})" ${currentUser ? '' : 'disabled'}>Buy</button></td>
+                        </tr>`;
+                        buyingTableBody.insertAdjacentHTML('beforeend', buyingRow);
+                    }
+
+                    if (currentUser && listing.seller === currentUser.username) {
+                        const sellingRow = `<tr>
+                            <td>${listing.id}</td>
+                            <td>${listing.title}</td>
+                            <td>${listing.category}</td>
+                            <td>${listing.price.toFixed(2)}</td>
+                            <td>${listing.status}</td>
+                            <td>
+                                <button onclick="editListing(${listing.id})">Edit</button>
+                                <button onclick="deleteListing(${listing.id})">Delete</button>
+                            </td>
+                        </tr>`;
+                        sellingTableBody.insertAdjacentHTML('beforeend', sellingRow);
+                    }
+                });
+
+
+
     </script>
 
 </body>
