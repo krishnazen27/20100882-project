@@ -14,16 +14,21 @@ class MarketplaceTestCase(unittest.TestCase):
             os.remove(TEST_DB_FILE)
         # Start every test from a clean schema
         init_db()
-        self.app.post('/api/auth/register', data=json.dumps({
-            "username": "testuser", "password": "password123", "contact_info": "test@domain.com"
-        }), content_type='application/json')
-        self.app.post('/api/auth/login', data=json.dumps({
-            "username": "testuser", "password": "password123"
-        }), content_type='application/json')
+        self.register_and_login_helper("testuser", "password123")
 
     def tearDown(self):
         if os.path.exists(TEST_DB_FILE):
             os.remove(TEST_DB_FILE)
+
+    def register_and_login_helper(self, user, pwd):
+        # Register a test runner profile
+        self.app.post('/api/auth/register', data=json.dumps({
+            "username": user, "password": pwd, "contact_info": "test@domain.com"
+        }), content_type='application/json')
+        # Login to inject cookies into client container
+        self.app.post('/api/auth/login', data=json.dumps({
+            "username": user, "password": pwd
+        }), content_type='application/json')
 
     def test_add_marketplace_ad(self):
         """UNIT TEST: Verifies clean creation of a marketplace entry under an authenticated account."""
