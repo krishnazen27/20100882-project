@@ -164,6 +164,29 @@
             loadListings();
         }
 
+async function checksession() {
+            try {
+                const response = await fetch(`${API_BASE}/session`);
+                if (response.ok) {
+                    currentUser = await response.json();
+                    document.getElementById('welcome-banner').innerText = `Welcome, ${currentUser.username}!`;
+                    document.getElementById('auth-unauthenticated-panel').style.display = 'none';
+                    document.getElementById('auth-authenticated-panel').style.display = 'block';
+                    document.getElementById('profile-username-lbl').innerText = currentUser.username;
+                    document.getElementById('profile-contact-lbl').innerText = currentUser.contact_info;
+                    document.getElementById('selling-authorized-zone').style.display = 'block';
+                    document.getElementById('selling-logged-out-msg').style.display = 'none';
+                } else {
+                    currentUser = null;
+                    document.getElementById('welcome-banner').innerText = `Guest Session`;
+                    document.getElementById('auth-unauthenticated-panel').style.display = 'block';
+                    document.getElementById('auth-authenticated-panel').style.display = 'none';
+                    document.getElementById('selling-authorized-zone').style.display = 'none';
+                    document.getElementById('selling-logged-out-msg').style.display = 'block';
+                }
+            } catch (error) { console.error("Session check error:", error); }
+
+
         // --- MARKETPLACE RENDERING ---
         async function loadListings() {
             const searchQuery = document.getElementById('search-input').value;
@@ -310,6 +333,8 @@
             document.getElementById('btn-save').innerText = "Post Advertisement";
             document.getElementById('btn-cancel').style.display = "none";
         }
+
+        window.onload = checkSession;
 
     </script>
 
