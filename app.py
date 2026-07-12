@@ -66,10 +66,28 @@ def register():
                      (data['username'], hashed_password, data['contact_info']))
         conn.commit()
     except sqlite3.IntegrityError:
+        # UNIQUE constraint on username violated
         conn.close()
         return jsonify({"error": "Username already exists"}), 409
     conn.close()
     return jsonify({"message": "User registered successfully!"}), 201
+
+@app.route('/api/auth/login', methods=['POST'])
+def login():
+    data = request.get_json()
+    if not data or not data.get('username') or not data.get('password'):
+        return jsonify({"error": "Username and password are required"}), 400
+
+    conn = get_db_connection()
+    user = conn.execute('SELECT * FROM users WHERE username = ?', (data['username'],)).fetchone()
+    conn.close()
+
+    if user and check_password_hash(user['password_hash'], data['password']):
+        session['user_id'] = user['id']
+        session['username'] = user['username']
+        return jsonify({"message": "Login successful!"}), 200
+    else:
+        return jsonify({"error": "Invalid username or password"}), 401
 
 @app.route('/api/listings', methods=['POST'])
 def create_listing():
