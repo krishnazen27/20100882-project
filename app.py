@@ -1,15 +1,16 @@
+import os
 import sqlite3
 import urllib.request
 import json
-from flask import Flask, render_template, request, jsonify, session
-from werkzeug.security import generate_password_hash, check_password_hash
+from flask import Flask, request, jsonify, render_template, session
 from flask_cors import CORS
+from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__, template_folder='templates')
-app.secret_key = 'super_secret_dev_key_for_session_management' 
+app.secret_key = 'super_secret_dev_key_for_session_management'
 CORS(app, supports_credentials=True)
 
-
+# --- DYNAMIC DATABASE SEPARATION ---
 def get_db_file():
     if app.config.get('TESTING'):
         return 'test_classifieds.db'
@@ -23,6 +24,7 @@ def get_db_connection():
 
 def init_db():
     conn = get_db_connection()
+    # Create Users Account Grid
     conn.execute('''
         CREATE TABLE IF NOT EXISTS users (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -30,6 +32,8 @@ def init_db():
             password_hash TEXT NOT NULL,
             contact_info TEXT NOT NULL
         )''')
+    
+    # Update listings table to point explicitly to unique user IDs
     conn.execute('''
         CREATE TABLE IF NOT EXISTS listings (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -40,7 +44,7 @@ def init_db():
             contact_info TEXT NOT NULL,
             status TEXT NOT NULL DEFAULT 'Available',
             seller_id INTEGER,
-            FOREIGN KEY(seller_id) REFERENCES users(id) ON DELETE SET NULL                
+            FOREIGN KEY(seller_id) REFERENCES users(id) ON DELETE SET NULL
         )''')
     conn.commit()
     conn.close()
@@ -53,19 +57,19 @@ def get_external_price_in_usd(amount_eur):
             usd_rate = data["rates"].get("USD", 1.10)
             return round(amount_eur * usd_rate, 2)
     except Exception as e:
-        # Exchange-rate API unreachable - fall back to a fixed approximate rate
         return round(amount_eur * 1.10, 2)
 
 @app.route('/')
 def serve_frontend_page():
     return render_template('index.html')
 
+# --- AUTHENTICATION API ENDPOINTS ---
 @app.route('/api/auth/register', methods=['POST'])
 def register():
     data = request.get_json()
     if not data or not data.get('username') or not data.get('password') or not data.get('contact_info'):
         return jsonify({"error": "All fields are required"}), 400
-
+    
     hashed_password = generate_password_hash(data['password'])
     conn = get_db_connection()
     try:
@@ -73,7 +77,6 @@ def register():
                      (data['username'], hashed_password, data['contact_info']))
         conn.commit()
     except sqlite3.IntegrityError:
-        # UNIQUE constraint on username violated
         conn.close()
         return jsonify({"error": "Username already exists"}), 409
     conn.close()
@@ -84,11 +87,11 @@ def login():
     data = request.get_json()
     if not data or not data.get('username') or not data.get('password'):
         return jsonify({"error": "Missing credentials"}), 400
-
+    
     conn = get_db_connection()
     user = conn.execute('SELECT * FROM users WHERE username = ?', (data['username'],)).fetchone()
     conn.close()
-
+    
     if user and check_password_hash(user['password_hash'], data['password']):
         session['user_id'] = user['id']
         session['username'] = user['username']
@@ -97,7 +100,7 @@ def login():
             "message": "Login successful",
             "user": {"id": user['id'], "username": user['username'], "contact_info": user['contact_info']}
         }), 200
-
+        
     return jsonify({"error": "Invalid username or password"}), 401
 
 @app.route('/api/auth/logout', methods=['POST'])
@@ -114,16 +117,17 @@ def get_session():
         }), 200
     return jsonify({"logged_in": False}), 200
 
+# --- UPDATED LISTINGS API WITH USER RELATIONSHIPS ---
 @app.route('/api/listings', methods=['POST'])
 def create_listing():
     data = request.get_json()
     # Explicit enforcement: must be logged in to create an ad
     if 'user_id' not in session:
         return jsonify({"error": "Authentication required to post an ad"}), 401
-    
+        
     if not data or not data.get('title') or not data.get('price_eur'):
         return jsonify({"error": "Missing required fields"}), 400
-
+    
     conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute(
@@ -147,6 +151,7 @@ def read_listings():
     else:
         rows = conn.execute('SELECT * FROM listings').fetchall()
     conn.close()
+    
     listings_list = []
     for row in rows:
         item = dict(row)
@@ -162,12 +167,12 @@ def update_listing(item_id):
     if not item:
         conn.close()
         return jsonify({"error": "Listing not found"}), 404
-    
+        
     # Check permissions: item belongs to session owner or it's a "Buy Now" update changing to Sold
     if data.get('status') != 'Sold' and ('user_id' not in session or item['seller_id'] != session['user_id']):
         conn.close()
         return jsonify({"error": "Unauthorized mutation matrix exception"}), 403
-
+        
     conn.execute(
         'UPDATE listings SET title = ?, category = ?, price_eur = ?, status = ? WHERE id = ?',
         (data['title'], data['category'], float(data['price_eur']), data['status'], item_id)
@@ -178,20 +183,19 @@ def update_listing(item_id):
 
 @app.route('/api/listings/<int:item_id>', methods=['DELETE'])
 def delete_listing(item_id):
-    # Explicit enforcement: must be logged in to delete an ad
     if 'user_id' not in session:
-        return jsonify({"error": "Authentication required to delete an ad"}), 401
-    
+        return jsonify({"error": "Authentication required"}), 401
+        
     conn = get_db_connection()
     item = conn.execute('SELECT * FROM listings WHERE id = ?', (item_id,)).fetchone()
     if not item:
         conn.close()
         return jsonify({"error": "Listing not found"}), 404
-    
+        
     if item['seller_id'] != session['user_id']:
         conn.close()
-        return jsonify({"error": "Unauthorized deletion attempt as You do not own this ad"}), 403
-
+        return jsonify({"error": "You do not own this ad"}), 403
+        
     conn.execute('DELETE FROM listings WHERE id = ?', (item_id,))
     conn.commit()
     conn.close()
