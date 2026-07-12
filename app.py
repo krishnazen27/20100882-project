@@ -31,10 +31,22 @@ def serve_frontend_page():
     return render_template('index.html')
 
 @app.route('/api/listings', methods=['POST'])
-def create_listing();
+def create_listing():
     data = request.get_json()
-    if not data or not data.get(title) or not data.get('category') or not data.get('price_eur') or not data.get('seller_name') or not data.get('contact_info'):
-        return jsonify({'error': 'Missing required fields'}), 400
+    if not data or not data.get('title') or not data.get('price_eur'):
+        return jsonify({"error": "Missing required fields"}), 400
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute(
+        'INSERT INTO listings (title, category, price_eur, seller_name, contact_info) VALUES (?, ?, ?, ?, ?)',
+        (data['title'], data.get('category', 'General'), float(data['price_eur']),
+         data.get('seller_name', 'Anonymous'), data.get('contact_info', 'n/a'))
+    )
+    conn.commit()
+    new_id = cursor.lastrowid
+    conn.close()
+    return jsonify({"id": new_id, "message": "Ad listed successfully!"}), 201
 
 @app.route('/api/listings', methods=['GET'])
 def read_listings():
