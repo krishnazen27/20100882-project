@@ -23,6 +23,7 @@ The core infrastructure operates on a decentralized Single-Page-Application mode
 
 ## 📂 Project File & Folder Structure
 
+```text
 
 20100882-project-development/
 │
@@ -38,7 +39,7 @@ The core infrastructure operates on a decentralized Single-Page-Application mode
 │
 └── images/                 # Asset media gallery
     └── sample-helloworld.png   # System verification capture screenshot
-
+```
 ---
 
 ##  CRUD Operations
@@ -91,4 +92,11 @@ project supports full CRUD (Create, Read, Update, Delete) operations on the mark
                 python3 app.py
 
                 Open a web browser and go to http://ubuntu-externalIP:5000. You should see “Hello, World!” displayed.
-![Hello World Page](images/sample-helloworld.png)
+
+<div align="center">
+    <img src="images/sample-helloworld.png" alt="Main Screen">
+</div>
+
+<div align="center">
+    <img src="images/main-screen.png" alt="Main Screen">
+</div>
