@@ -181,6 +181,26 @@
             }
         }
 
+        async function handleLogin() {
+            const username = document.getElementById('login-user').value;
+            const password = document.getElementById('login-pass').value;
+            if (!username || !password) { alert("Please enter both username and password."); return; }
+
+            try {
+                const response = await fetch(`${API_BASE}/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+                const result = await response.json();
+                if (result.success) {
+                    currentUser = result.user;
+                    updateUIForLoggedInState();
+                    loadListings();
+                } else { alert(result.message || "Login failed."); }
+            } catch (err) { console.error("Login error:", err); }
+        }
+
         // --- MARKETPLACE RENDERING ---
         async function loadListings() {
             const searchQuery = document.getElementById('search-input').value;
