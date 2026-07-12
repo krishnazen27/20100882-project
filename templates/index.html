@@ -223,6 +223,13 @@
             } catch (err) { console.error("Registration error:", err); }
         }
 
+        async function handleLogout() {
+            await fetch(`${API_BASE}/auth/logout`, { method: 'POST' });
+            currentUser = null;
+            updateUIForLoggedOutState();
+            alert("Logged out successfully.");
+        }
+
         // --- MARKETPLACE RENDERING ---
         async function loadListings() {
             const searchQuery = document.getElementById('search-input').value;
