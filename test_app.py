@@ -22,13 +22,8 @@ class MarketplaceTestCase(unittest.TestCase):
         }), content_type='application/json')
 
     def tearDown(self):
-        """
-        Runs AFTER every individual test case.
-        Used to clean up data structures, close open connections, or clear memory.
-        """
-        self.app.listings.clear()
-        del self.app
-        print("[tearDown] Cleaned up and deleted marketplace instance.")
+        if os.path.exists(TEST_DB_FILE):
+            os.remove(TEST_DB_FILE)
 
     def test_add_success(self):
         """Case 1: Ensure logged-in users can successfully add an item."""
