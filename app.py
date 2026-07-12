@@ -56,6 +56,24 @@ def read_listings():
     conn.close()
     return jsonify([dict(row) for row in rows]), 200
 
+@app.route('/api/listings/<int:listing_id>', methods=['PUT'])
+def update_listing(listing_id):
+    data = request.get_json()
+    conn = get_db_connection()
+    item = conn.execute('SELECT * FROM listings WHERE id = ?', (listing_id,)).fetchone()
+    if item is None:
+        conn.close()
+        return jsonify({"error": "Listing not found"}), 404
+    conn.execute(
+        'UPDATE listings SET title = ?, category = ?, price_eur = ?, seller_name = ?, contact_info = ?, status = ? WHERE id = ?',
+        (data.get('title', item['title']), data.get('category', item['category']),
+         float(data.get('price_eur', item['price_eur'])), data.get('seller_name', item['seller_name']),
+         data.get('contact_info', item['contact_info']), data.get('status', item['status']), listing_id)
+    )
+    conn.commit()
+    conn.close()
+    return jsonify({"message": "Listing updated successfully!"}), 200
+
 if __name__ == '__main__':
     init_db()
     app.run(debug=True, port=5000, host='0.0.0.0')
