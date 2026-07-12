@@ -12,7 +12,6 @@ class MarketplaceTestCase(unittest.TestCase):
         self.app = app.test_client()
         if os.path.exists(TEST_DB_FILE):
             os.remove(TEST_DB_FILE)
-        # Start every test from a clean schema
         init_db()
         self.register_and_login_helper("testuser", "password123")
 
@@ -43,6 +42,16 @@ class MarketplaceTestCase(unittest.TestCase):
         payload = {"title": "Free Sofa"}
         response = self.app.post('/api/listings', data=json.dumps(payload), content_type='application/json')
         self.assertEqual(response.status_code, 400)
+
+    def test_buy_now_status_update(self):
+        """FUNCTIONAL TEST: Verifies changing listing status to 'Sold' via simulated checkout (Buy Now)."""
+        item = {"title": "Yamaha YZF-R3", "category": "Motors", "price_eur": 3200.00}
+        post_res = self.app.post('/api/listings', data=json.dumps(item), content_type='application/json')
+        item_id = json.loads(post_res.data)['id']
+
+        updated_payload = {"title": "Yamaha YZF-R3", "category": "Motors", "price_eur": 3200.00, "status": "Sold"}
+        put_res = self.app.put(f'/api/listings/{item_id}', data=json.dumps(updated_payload), content_type='application/json')
+        self.assertEqual(put_res.status_code, 200)
 
 if __name__ == '__main__':
     unittest.main(verbosity=2)
