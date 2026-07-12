@@ -31,11 +31,12 @@ def serve_frontend_page():
     return render_template('index.html')
 
 @app.route('/api/listings', methods=['GET'])
-def get_listings():
+def read_listings():
     conn = get_db_connection()
-    listings = conn.execute('SELECT * FROM listings').fetchall()
+    rows = conn.execute('SELECT * FROM listings').fetchall()
     conn.close()
-    return jsonify([dict(listing) for listing in listings])
+    return jsonify([dict(row) for row in rows]), 200
 
 if __name__ == '__main__':
+    init_db()
     app.run(debug=True, port=5000, host='0.0.0.0')
