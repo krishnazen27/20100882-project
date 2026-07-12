@@ -60,13 +60,6 @@ def get_external_price_in_usd(amount_eur):
         return round(amount_eur * 1.10, 2)
 
 @app.route('/')
-def serve_frontend_page():
-    return render_template('index.html')
-
-# Mock login simulation flag
-is_logged_in = False 
-
-@app.route('/')
 def route_buying_tab():
     """Serves the main catalog browser marketplace screen."""
     return render_template('buying.html', active_page='buying')
