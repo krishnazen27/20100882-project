@@ -366,11 +366,8 @@
 
         async function deleteListing(id) {
             if (!confirm("Permanently drop ad?")) return;
-            try {
-                const response = await fetch(`${API_BASE}/listings/${id}`, { method: 'DELETE' });
-                if (response.ok) loadListings();
-            } catch (error) { console.error(error); }
-            
+            const response = await fetch(`${API_BASE}/listings/${id}`, { method: 'DELETE' });
+            if (response.ok) loadListings();
         }
 
         // Fills the form with an existing ad's data for editing
