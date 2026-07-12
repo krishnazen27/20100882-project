@@ -56,19 +56,18 @@ def read_listings():
     conn.close()
     return jsonify([dict(row) for row in rows]), 200
 
-@app.route('/api/listings/<int:listing_id>', methods=['PUT'])
-def update_listing(listing_id):
+@app.route('/api/listings/<int:item_id>', methods=['PUT'])
+def update_listing(item_id):
     data = request.get_json()
     conn = get_db_connection()
-    item = conn.execute('SELECT * FROM listings WHERE id = ?', (listing_id,)).fetchone()
-    if item is None:
+    item = conn.execute('SELECT * FROM listings WHERE id = ?', (item_id,)).fetchone()
+    if not item:
         conn.close()
         return jsonify({"error": "Listing not found"}), 404
+
     conn.execute(
-        'UPDATE listings SET title = ?, category = ?, price_eur = ?, seller_name = ?, contact_info = ?, status = ? WHERE id = ?',
-        (data.get('title', item['title']), data.get('category', item['category']),
-         float(data.get('price_eur', item['price_eur'])), data.get('seller_name', item['seller_name']),
-         data.get('contact_info', item['contact_info']), data.get('status', item['status']), listing_id)
+        'UPDATE listings SET title = ?, category = ?, price_eur = ?, status = ? WHERE id = ?',
+        (data['title'], data['category'], float(data['price_eur']), data['status'], item_id)
     )
     conn.commit()
     conn.close()
