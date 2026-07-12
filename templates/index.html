@@ -231,13 +231,14 @@
         }
 
         function updateUIForLoggedInState() {
-            document.getElementById('auth-unauthenticated-panel').style.display = 'none';
-            document.getElementById('auth-authenticated-panel').style.display = 'block';
+            document.getElementById('welcome-banner').innerText = `Logged in as: ${currentUser.username}`;
+            document.getElementById('auth-unauthenticated-panel').style.display = "none";
+            document.getElementById('auth-authenticated-panel').style.display = "block";
             document.getElementById('profile-username-lbl').innerText = currentUser.username;
             document.getElementById('profile-contact-lbl').innerText = currentUser.contact_info;
-            document.getElementById('welcome-banner').innerText = `Welcome, ${currentUser.username}!`;
-            document.getElementById('selling-authorized-zone').style.display = 'block';
-            document.getElementById('selling-logged-out-msg').style.display = 'none';
+            document.getElementById('selling-logged-out-msg').style.display = "none";
+            document.getElementById('selling-authorized-zone').style.display = "block";
+            loadListings();
         }
 
         // --- MARKETPLACE RENDERING ---
