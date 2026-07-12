@@ -235,7 +235,19 @@
             } catch (error) { console.error("Data load matrix error:", error); }
         }
 
-        // Persists a new ad, or updates one being edited
+        async function buyNowByIndex(index) {
+            const item = globalListingsCache[index];
+            if (!item) return alert("Item not found.");
+            if (!confirm(`Are you sure you want to purchase "${item.title}" for €${item.price_eur}?`)) return;
+
+            const payload = { item_id: item.id, buyer_id: currentUser ? currentUser.id : null };
+
+            try {
+                const response = await fetch(`${API_BASE}/listings/${item.id}/buy`, { method: 'POST' });
+                if (response.ok) { alert("Purchase successful!"); loadListings(); }
+                else { alert("Purchase failed. Please try again."); }
+            } catch (error) { console.error(error); alert("An error occurred during purchase."); }
+        }
 
         async function saveListing() {
             const id = document.getElementById('item-id').value;
