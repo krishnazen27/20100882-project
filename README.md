@@ -23,8 +23,6 @@ The core infrastructure operates on a decentralized Single-Page-Application mode
 
 ## 📂 Project File & Folder Structure
 
-```text
-
 20100882-project-development/
 │
 ├── app.py                  # Core Flask backend server (Routes, API endpoints, SQLite hooks)
@@ -40,7 +38,7 @@ The core infrastructure operates on a decentralized Single-Page-Application mode
 └── images/                 # Asset media gallery
     └── sample-helloworld.png   # System verification capture screenshot
 
-```
+
 ---
 
 ##  CRUD Operations
