@@ -241,6 +241,16 @@
             loadListings();
         }
 
+        function updateUIForLoggedOutState() {
+            document.getElementById('welcome-banner').innerText = "Guest Session";
+            document.getElementById('auth-unauthenticated-panel').style.display = "block";
+            document.getElementById('auth-authenticated-panel').style.display = "none";
+            document.getElementById('selling-logged-out-msg').style.display = "block";
+            document.getElementById('selling-authorized-zone').style.display = "none";
+            resetForm();
+            loadListings();
+        }
+
         // --- MARKETPLACE RENDERING ---
         async function loadListings() {
             const searchQuery = document.getElementById('search-input').value;
