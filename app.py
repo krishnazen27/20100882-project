@@ -63,6 +63,27 @@ def get_external_price_in_usd(amount_eur):
 def serve_frontend_page():
     return render_template('index.html')
 
+# Mock login simulation flag
+is_logged_in = False 
+
+@app.route('/')
+def home():
+    """Renders the Buying feed tab."""
+    return render_template('index.html')
+
+@app.route('/selling')
+def selling():
+    """Renders the Selling tab with an auth check guardrail."""
+    if not is_logged_in:
+        flash("⚠️ Access Denied: You must be logged in to view the Selling contents.")
+        return redirect(url_for('home'))
+    return render_template('selling.html')
+
+@app.route('/login')
+def profile():
+    """Renders the User Profile page tab."""
+    return render_template('profile.html')
+
 # --- AUTHENTICATION API ENDPOINTS ---
 @app.route('/api/auth/register', methods=['POST'])
 def register():
