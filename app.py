@@ -93,6 +93,24 @@ def login():
 
     return jsonify({"error": "Invalid username or password"}), 401
 
+@app.route('/api/auth/logout', methods=['POST'])
+def logout():
+    session.clear()
+    return jsonify({"message": "Logged out successfully"}), 200
+
+@app.route('/api/auth/session', methods=['GET'])
+def get_session():
+    if 'user_id' in session:
+        return jsonify({
+            "logged_in": True,
+            "user": {
+                "id": session['user_id'],
+                "username": session['username'],
+                "contact_info": session['contact_info']
+            }
+        }), 200
+    return jsonify({"logged_in": False}), 200
+
 @app.route('/api/listings', methods=['POST'])
 def create_listing():
     data = request.get_json()
