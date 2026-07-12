@@ -7,30 +7,19 @@ TEST_DB_FILE = 'test_classifieds.db'
 
 class MarketplaceTestCase(unittest.TestCase):
 
-# --- Simulated Marketplace Application Code ---
-class Marketplace:
-    def __init__(self):
-        self.listings = []
-
-    def add_listing(self, item_name, price, category, is_logged_in=False):
-        if not is_logged_in:
-            raise PermissionError("User must be logged in to post an item.")
-        
-        listing = {"name": item_name, "price": price, "category": category}
-        self.listings.append(listing)
-        return True
-
-
-# --- The Unit Test Suite ---
-class TestMarketplaceClassifieds(unittest.TestCase):
-
     def setUp(self):
-        """
-        Runs BEFORE every individual test case.
-        Provides a completely fresh instance of the application.
-        """
-        self.app = Marketplace()
-        print("\n[setUp] Initialized fresh marketplace instance.")
+        app.config['TESTING'] = True
+        self.app = app.test_client()
+        if os.path.exists(TEST_DB_FILE):
+            os.remove(TEST_DB_FILE)
+        # Start every test from a clean schema
+        init_db()
+        self.app.post('/api/auth/register', data=json.dumps({
+            "username": "testuser", "password": "password123", "contact_info": "test@domain.com"
+        }), content_type='application/json')
+        self.app.post('/api/auth/login', data=json.dumps({
+            "username": "testuser", "password": "password123"
+        }), content_type='application/json')
 
     def tearDown(self):
         """
