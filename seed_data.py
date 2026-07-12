@@ -1,9 +1,11 @@
 import urllib.request
 import json
-import http.cookiejar
 import random
+import http.cookiejar
 
 # API Base URL for your local classifieds portal
+API_BASE = "http://127.0.0.1:5000/api"
+
 # Sample pools for generating randomized listings
 titles_by_category = {
     "Electronics": ["iPhone 13 Pro", "Sony WH-1000XM4 Headphones", "Mechanical Keyboard", "Dell 27-inch Monitor", "Nintendo Switch"],
@@ -51,9 +53,75 @@ def register_and_login_users():
             # If user already exists (409), just ignore and proceed
             pass
 
+def post_ad_as_user(username, payload):
+    """Logs in as a specific user to grab a session cookie, then posts the ad."""
+    password = f"password_{username.lower()}"
+    login_payload = json.dumps({"username": username, "password": password}).encode('utf-8')
+    
+    # 1. Login to set session state
+    login_req = urllib.request.Request(
+        f"{API_BASE}/auth/login",
+        data=login_payload,
+        headers={'Content-Type': 'application/json'},
+        method='POST'
+    )
+    
+    try:
+        with urllib.request.urlopen(login_req, timeout=3) as login_res:
+            if login_res.status != 200:
+                return False
+    except Exception as e:
+        print(f"[Auth Error] Could not authenticate session for {username}: {e}")
+        return False
+
+    # 2. Post Listing (Cookie Jar automatically appends the login session cookie)
+    ad_data = json.dumps(payload).encode('utf-8')
+    ad_req = urllib.request.Request(
+        f"{API_BASE}/listings",
+        data=ad_data,
+        headers={'Content-Type': 'application/json'},
+        method='POST'
+    )
+    
+    try:
+        with urllib.request.urlopen(ad_req, timeout=3) as response:
+            if response.status == 201:
+                res_body = json.loads(response.read().decode())
+                print(f"[Success] Created Listing #{res_body.get('id')}: {payload['title']} (€{payload['price_eur']}) in [{payload['category']}] by {username}")
+                return True
+    except Exception as e:
+        print(f"[Error] Failed to post item: {e}")
+        return False
+
+def generate_random_listing():
+    category = random.choice(list(titles_by_category.keys()))
+    title = random.choice(titles_by_category[category])
+    
+    if random.choice([True, False]):
+        title = f"Used {title}"
+    else:
+        title = f"{title} (Excellent Condition)"
+
+    if category == "Motors":
+        price_eur = round(random.uniform(150.0, 4500.0), 2)
+    else:
+        price_eur = round(random.uniform(10.0, 600.0), 2)
+
+    return {
+        "title": title,
+        "category": category,
+        "price_eur": price_eur
+    }
+
 def seed_database(count=10):
     register_and_login_users()
-    print(f"Would inject {count} listings into the portal...")
+    print(f"\nStarting to inject {count} authenticated listings into the portal...\n")
+    
+    for _ in range(count):
+        payload = generate_random_listing()
+        random_seller = random.choice(seed_users)
+        post_ad_as_user(random_seller, payload)
 
 if __name__ == "__main__":
+    # Adjust count to inject more or fewer items
     seed_database(count=12)
