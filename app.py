@@ -37,6 +37,7 @@ def get_external_price_in_usd(amount_eur):
             usd_rate = data["rates"].get("USD", 1.10)
             return round(amount_eur * usd_rate, 2)
     except Exception as e:
+        # Exchange-rate API unreachable - fall back to a fixed approximate rate
         return round(amount_eur * 1.10, 2)
 
 @app.route('/')
@@ -64,7 +65,14 @@ def create_listing():
 @app.route('/api/listings', methods=['GET'])
 def read_listings():
     conn = get_db_connection()
-    rows = conn.execute('SELECT * FROM listings').fetchall()
+    search_query = request.args.get('search', '')
+    if search_query:
+        rows = conn.execute(
+            'SELECT * FROM listings WHERE title LIKE ? OR category LIKE ?',
+            (f'%{search_query}%', f'%{search_query}%')
+        ).fetchall()
+    else:
+        rows = conn.execute('SELECT * FROM listings').fetchall()
     conn.close()
     listings_list = []
     for row in rows:
