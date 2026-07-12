@@ -22,7 +22,7 @@ def init_db():
             price_eur REAL NOT NULL,
             seller_name TEXT NOT NULL,
             contact_info TEXT NOT NULL,
-            status TEXT NOT NULL DEFAULT 'Available',                 
+            status TEXT NOT NULL DEFAULT 'Available'                
         )''')
     conn.commit()
     conn.close()
