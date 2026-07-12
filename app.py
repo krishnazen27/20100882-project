@@ -159,10 +159,10 @@ def update_listing(item_id):
         conn.close()
         return jsonify({"error": "Listing not found"}), 404
     
-
-    if data.get('status') not in 'Sold' and ('user_id' not in session or session['user_id'] != item['seller_id']):
+    # Check permissions: item belongs to session owner or it's a "Buy Now" update changing to Sold
+    if data.get('status') != 'Sold' and ('user_id' not in session or item['seller_id'] != session['user_id']):
         conn.close()
-        return jsonify({"error": "Unauthorized to update this listing"}), 403
+        return jsonify({"error": "Unauthorized mutation matrix exception"}), 403
 
     conn.execute(
         'UPDATE listings SET title = ?, category = ?, price_eur = ?, status = ? WHERE id = ?',
