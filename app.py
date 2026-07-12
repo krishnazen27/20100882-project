@@ -1,4 +1,5 @@
 import sqlite3
+from turtle import title
 from flask import Flask, render_template, request, jsonify
 from flask_cors import CORS
 
@@ -29,6 +30,12 @@ def init_db():
 @app.route('/')
 def serve_frontend_page():
     return render_template('index.html')
+
+@app.route('/api/listings', methods=['POST'])
+def create_listing();
+    data = request.get_json()
+    if not data or not data.get(title) or not data.get('category') or not data.get('price_eur') or not data.get('seller_name') or not data.get('contact_info'):
+        return jsonify({'error': 'Missing required fields'}), 400
 
 @app.route('/api/listings', methods=['GET'])
 def read_listings():
