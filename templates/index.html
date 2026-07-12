@@ -210,11 +210,30 @@
                             <td id="actions-${item.id}"></td>
                         `;
                         sellingBody.appendChild(sellRow);
+
+                        const btnEdit = document.createElement('button');
+                        btnEdit.textContent = 'Edit';
+                        btnEdit.onclick = () => { populateEditForm(item); window.scrollTo(0, 0); };
+
+                        const btnDelete = document.createElement('button');
+                        btnDelete.textContent = 'Delete';
+                        btnDelete.onclick = () => deleteListing(item.id);
+
+                        const actionCell = document.getElementById(`actions-${item.id}`);
+                        actionCell.appendChild(btnEdit);
+                        actionCell.appendChild(document.createTextNode(' '));
+                        actionCell.appendChild(btnDelete);
                     }
                 });
-            }
-        }
 
+                if (buyingBody.children.length === 0) {
+                    buyingBody.innerHTML = `<tr><td colspan="8" style="text-align:center;">No active listings found.</td></tr>`;
+                }
+                if (sellingBody.children.length === 0) {
+                    sellingBody.innerHTML = `<tr><td colspan="6" style="text-align:center;">You have no managed listings.</td></tr>`;
+                }
+            } catch (error) { console.error("Data load matrix error:", error); }
+        }
 
 
     </script>
