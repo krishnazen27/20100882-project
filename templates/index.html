@@ -235,6 +235,46 @@
             } catch (error) { console.error("Data load matrix error:", error); }
         }
 
+        // Persists a new ad, or updates one being edited
+
+        async function saveListing() {
+            const title = document.getElementById('title').value.trim();
+            const category = document.getElementById('category').value;
+            const price = parseFloat(document.getElementById('price').value);
+            const status = document.getElementById('status').value;
+            const itemId = document.getElementById('item-id').value;
+
+            if (!title || !category || isNaN(price)) {
+                alert("Please fill in all required fields correctly.");
+                return;
+            }
+
+            const payload = { title, category, price_eur: price, status };
+            let url = `${API_BASE}/listings`;
+            let method = 'POST';
+
+            if (itemId) {
+                url += `/${itemId}`;
+                method = 'PUT';
+            }
+
+            try {
+                const response = await fetch(url, {
+                    method,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                if (response.ok) {
+                    alert(itemId ? "Ad updated successfully!" : "Ad posted successfully!");
+                    resetForm();
+                    loadListings();
+                } else {
+                    const errorData = await response.json();
+                    alert(`Error: ${errorData.message}`);
+                }
+            } catch (error) { console.error("Save listing error:", error); }
+        }
+
 
     </script>
 
