@@ -113,15 +113,18 @@ def get_session():
 @app.route('/api/listings', methods=['POST'])
 def create_listing():
     data = request.get_json()
+    # Explicit enforcement: must be logged in to create an ad
+    if 'user_id' not in session:
+        return jsonify({"error": "Authentication required to post an ad"}), 401
+    
     if not data or not data.get('title') or not data.get('price_eur'):
         return jsonify({"error": "Missing required fields"}), 400
 
     conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute(
-        'INSERT INTO listings (title, category, price_eur, seller_name, contact_info, status) VALUES (?, ?, ?, ?, ?, ?)',
-        (data['title'], data.get('category', 'General'), float(data['price_eur']),
-         data.get('seller_name', 'Anonymous'), data.get('contact_info', 'n/a'), 'Available')
+        'INSERT INTO listings (title, category, price_eur, seller_name, contact_info, status, seller_id) VALUES (?, ?, ?, ?, ?, ?, ?)',
+        (data['title'], data.get('category', 'General'), float(data['price_eur']), session['username'], session['contact_info'], 'Available', session['user_id'])
     )
     conn.commit()
     new_id = cursor.lastrowid
