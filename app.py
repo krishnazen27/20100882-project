@@ -15,14 +15,14 @@ def get_db_connection():
 def init_db():
     conn = get_db_connection()
     conn.execute('''
-        CREATE TABLE IF NOT EXISTS classifieds (
+        CREATE TABLE IF NOT EXISTS listings (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             title TEXT NOT NULL,
-            description TEXT NOT NULL,
-            price REAL NOT NULL,
+            category TEXT NOT NULL,
+            price_eur REAL NOT NULL,
+            seller_name TEXT NOT NULL,
             contact_info TEXT NOT NULL
-        )
-    ''')
+        )''')
     conn.commit()
     conn.close()
 
