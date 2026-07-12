@@ -164,50 +164,56 @@
             loadListings();
         }
 
+        // --- MARKETPLACE RENDERING ---
         async function loadListings() {
-            const searchQuery = document.getElementById('search-input').value.toLowerCase();
+            const searchQuery = document.getElementById('search-input').value;
             try {
-                const response = await fetch(`${API_BASE}/listings`);
-                if (!response.ok) throw new Error('Failed to fetch listings');
-                const listings = await response.json();
-                globalListingsCache = listings;
+                const response = await fetch(`${API_BASE}/listings?search=${encodeURIComponent(searchQuery)}`);
+                const items = await response.json();
+                globalListingsCache = items;
+                
+                const buyingBody = document.getElementById('buying-table-body');
+                const sellingBody = document.getElementById('selling-table-body');
+                
+                buyingBody.innerHTML = ''; 
+                sellingBody.innerHTML = ''; 
 
-                const buyingTableBody = document.getElementById('buying-table-body');
-                const sellingTableBody = document.getElementById('selling-table-body');
-                buyingTableBody.innerHTML = '';
-                sellingTableBody.innerHTML = '';
+                items.forEach((item, index) => {
+                    const isSold = item.status === 'Sold';
+                    const buyButtonHtml = isSold 
+                        ? `<button class="btn-buy" disabled>Sold out</button>` 
+                        : `<button class="btn-buy" onclick="buyNowByIndex(${index})">Buy Now</button>`;
 
-                listings.forEach(listing => {
-                    if (listing.title.toLowerCase().includes(searchQuery) || listing.category.toLowerCase().includes(searchQuery)) {
-                        const priceUSD = (listing.price * 1.1).toFixed(2);
-                        const buyingRow = `<tr>
-                            <td>${listing.title}</td>
-                            <td>${listing.category}</td>
-                            <td>${listing.price.toFixed(2)}</td>
-                            <td>${priceUSD}</td>
-                            <td>${listing.seller}</td>
-                            <td>${listing.status}</td>
-                            <td>${listing.contact}</td>
-                            <td><button class="btn-buy" onclick="buyItem(${listing.id})" ${currentUser ? '' : 'disabled'}>Buy</button></td>
-                        </tr>`;
-                        buyingTableBody.insertAdjacentHTML('beforeend', buyingRow);
-                    }
+                    // 1. Render Buying Tab (FIXED: removed &trade;)
+                    const buyRow = document.createElement('tr');
+                    buyRow.innerHTML = `
+                        <td><strong>${item.title}</strong></td>
+                        <td>${item.category}</td>
+                        <td>&euro;${item.price_eur}</td>
+                        <td>$${item.price_usd}*</td>
+                        <td>${item.seller_name}</td>
+                        <td><em>${item.status}</em></td>
+                        <td><button onclick="alert('Contact: ${item.contact_info}')">View Contact</button></td>
+                        <td>${buyButtonHtml}</td>
+                    `;
+                    buyingBody.appendChild(buyRow);
 
-                    if (currentUser && listing.seller === currentUser.username) {
-                        const sellingRow = `<tr>
-                            <td>${listing.id}</td>
-                            <td>${listing.title}</td>
-                            <td>${listing.category}</td>
-                            <td>${listing.price.toFixed(2)}</td>
-                            <td>${listing.status}</td>
-                            <td>
-                                <button onclick="editListing(${listing.id})">Edit</button>
-                                <button onclick="deleteListing(${listing.id})">Delete</button>
-                            </td>
-                        </tr>`;
-                        sellingTableBody.insertAdjacentHTML('beforeend', sellingRow);
+                    // 2. Render Management Layer (Only display if item belongs to the authenticated user ID)
+                    if (currentUser && item.seller_id === currentUser.id) {
+                        const sellRow = document.createElement('tr');
+                        sellRow.innerHTML = `
+                            <td>${item.id}</td>
+                            <td><strong>${item.title}</strong></td>
+                            <td>${item.category}</td>
+                            <td>&euro;${item.price_eur}</td>
+                            <td><em>${item.status}</em></td>
+                            <td id="actions-${item.id}"></td>
+                        `;
+                        sellingBody.appendChild(sellRow);
                     }
                 });
+            }
+        }
 
 
 
