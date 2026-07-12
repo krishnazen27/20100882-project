@@ -184,43 +184,43 @@
         async function handleLogin() {
             const username = document.getElementById('login-user').value;
             const password = document.getElementById('login-pass').value;
-            if (!username || !password) { alert("Please enter both username and password."); return; }
-
             try {
-                const response = await fetch(`${API_BASE}/auth/login`, {
+                const res = await fetch(`${API_BASE}/auth/login`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ username, password })
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({username, password})
                 });
-                const result = await response.json();
-                if (result.success) {
-                    currentUser = result.user;
+                const data = await res.json();
+                if (res.ok) {
+                    currentUser = data.user;
                     updateUIForLoggedInState();
-                    loadListings();
-                } else { alert(result.message || "Login failed."); }
-            } catch (err) { console.error("Login error:", err); }
+                    alert("Logged in successfully!");
+                } else {
+                    alert(data.error);
+                }
+            } catch (err) { alert("Login connection problem"); }
         }
 
         async function handleRegister() {
             const username = document.getElementById('reg-user').value;
             const password = document.getElementById('reg-pass').value;
-            const contact = document.getElementById('reg-contact').value;
-            if (!username || !password || !contact) { alert("Please complete all registration fields."); return; }
-
+            const contact_info = document.getElementById('reg-contact').value;
             try {
-                const response = await fetch(`${API_BASE}/auth/register`, {
+                const res = await fetch(`${API_BASE}/auth/register`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ username, password, contact_info: contact })
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({username, password, contact_info})
                 });
-                const result = await response.json();
-                if (result.success) {
-                    alert("Registration successful! You can now log in.");
+                const data = await res.json();
+                if (res.ok) {
+                    alert("Registration complete! You can now log in.");
                     document.getElementById('reg-user').value = '';
                     document.getElementById('reg-pass').value = '';
                     document.getElementById('reg-contact').value = '';
-                } else { alert(result.message || "Registration failed."); }
-            } catch (err) { console.error("Registration error:", err); }
+                } else {
+                    alert(data.error);
+                }
+            } catch (err) { alert("Registration error"); }
         }
 
         async function handleLogout() {
@@ -247,7 +247,6 @@
             document.getElementById('auth-authenticated-panel').style.display = "none";
             document.getElementById('selling-logged-out-msg').style.display = "block";
             document.getElementById('selling-authorized-zone').style.display = "none";
-            resetForm();
             loadListings();
         }
 
