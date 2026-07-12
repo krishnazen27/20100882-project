@@ -201,6 +201,28 @@
             } catch (err) { console.error("Login error:", err); }
         }
 
+        async function handleRegister() {
+            const username = document.getElementById('reg-user').value;
+            const password = document.getElementById('reg-pass').value;
+            const contact = document.getElementById('reg-contact').value;
+            if (!username || !password || !contact) { alert("Please complete all registration fields."); return; }
+
+            try {
+                const response = await fetch(`${API_BASE}/auth/register`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password, contact_info: contact })
+                });
+                const result = await response.json();
+                if (result.success) {
+                    alert("Registration successful! You can now log in.");
+                    document.getElementById('reg-user').value = '';
+                    document.getElementById('reg-pass').value = '';
+                    document.getElementById('reg-contact').value = '';
+                } else { alert(result.message || "Registration failed."); }
+            } catch (err) { console.error("Registration error:", err); }
+        }
+
         // --- MARKETPLACE RENDERING ---
         async function loadListings() {
             const searchQuery = document.getElementById('search-input').value;
