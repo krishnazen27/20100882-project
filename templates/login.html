@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+
+{% block content %}
+{% if not session.get('user_id') %}
+    <div style="display:flex; gap:40px; flex-wrap: wrap;">
+        <div style="flex:1; min-width:300px; border:1px solid #ccc; padding:20px; border-radius:6px; background:#fff;">
+            <h3>Account Sign In</h3>
+            <div class="form-group"><label>Username:</label><input type="text" id="log-user"></div>
+            <div class="form-group"><label>Password:</label><input type="password" id="log-pass"></div>
+            <button class="btn-buy" onclick="authAction('login')">Login</button>
+        </div>
+        
+        <div style="flex:1; min-width:300px; border:1px solid #ccc; padding:20px; border-radius:6px; background:#fff;">
+            <h3>Register Profile</h3>
+            <div class="form-group"><label>Username:</label><input type="text" id="reg-user"></div>
+            <div class="form-group"><label>Password:</label><input type="password" id="reg-pass"></div>
+            <div class="form-group"><label>Contact Details:</label><input type="text" id="reg-contact" placeholder="Email or Phone"></div>
+            <button class="btn-buy" style="background:#007bff;" onclick="authAction('register')">Create Account</button>
+        </div>
+    </div>
+{% else %}
+    <div>
+        <h2>Your Account Metadata Info</h2>
+        <p><strong>Username Handle:</strong> {{ session.get('username') }}</p>
+        <p><strong>Linked Contact Matrix:</strong> {{ session.get('contact_info') }}</p>
+        <button class="btn-buy" style="background:#dc3545;" onclick="authAction('logout')">Terminate Session (Logout)</button>
+    </div>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script>
+    async function authAction(mode) {
+        if(mode === 'logout') {
+            await fetch(`${API_BASE}/auth/logout`, { method: 'POST' });
+            window.location.reload();
+            return;
+        }
+
+        const username = document.getElementById(mode === 'login' ? 'log-user':'reg-user').value;
+        const password = document.getElementById(mode === 'login' ? 'log-pass':'reg-pass').value;
+        const payload = { username, password };
+
+        if(mode === 'register') {
+            payload.contact_info = document.getElementById('reg-contact').value;
+        }
+
+        const res = await fetch(`${API_BASE}/auth/${mode}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+
+        const data = await res.json();
+        if(res.ok) {
+            alert(mode === 'login' ? "Access Granted!" : "Registration Complete. Please login.");
+            window.location.reload();
+        } else {
+            alert("Error: " + data.error);
+        }
+    }
+</script>
+{% endblock %}
