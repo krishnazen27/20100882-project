@@ -21,7 +21,8 @@ def init_db():
             category TEXT NOT NULL,
             price_eur REAL NOT NULL,
             seller_name TEXT NOT NULL,
-            contact_info TEXT NOT NULL
+            contact_info TEXT NOT NULL,
+            status TEXT NOT NULL DEFAULT 'Available',                 
         )''')
     conn.commit()
     conn.close()
@@ -39,9 +40,9 @@ def create_listing():
     conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute(
-        'INSERT INTO listings (title, category, price_eur, seller_name, contact_info) VALUES (?, ?, ?, ?, ?)',
+        'INSERT INTO listings (title, category, price_eur, seller_name, contact_info, status) VALUES (?, ?, ?, ?, ?, ?)',
         (data['title'], data.get('category', 'General'), float(data['price_eur']),
-         data.get('seller_name', 'Anonymous'), data.get('contact_info', 'n/a'))
+         data.get('seller_name', 'Anonymous'), data.get('contact_info', 'n/a'), 'Available')
     )
     conn.commit()
     new_id = cursor.lastrowid
