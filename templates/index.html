@@ -164,28 +164,22 @@
             loadListings();
         }
 
-async function checksession() {
+        // --- AUTHENTICATION FLOW MANAGEMENT ---
+        async function checkSession() {
             try {
-                const response = await fetch(`${API_BASE}/session`);
-                if (response.ok) {
-                    currentUser = await response.json();
-                    document.getElementById('welcome-banner').innerText = `Welcome, ${currentUser.username}!`;
-                    document.getElementById('auth-unauthenticated-panel').style.display = 'none';
-                    document.getElementById('auth-authenticated-panel').style.display = 'block';
-                    document.getElementById('profile-username-lbl').innerText = currentUser.username;
-                    document.getElementById('profile-contact-lbl').innerText = currentUser.contact_info;
-                    document.getElementById('selling-authorized-zone').style.display = 'block';
-                    document.getElementById('selling-logged-out-msg').style.display = 'none';
+                const response = await fetch(`${API_BASE}/auth/session`);
+                const status = await response.json();
+                if (status.logged_in) {
+                    currentUser = status.user;
+                    updateUIForLoggedInState();
                 } else {
                     currentUser = null;
-                    document.getElementById('welcome-banner').innerText = `Guest Session`;
-                    document.getElementById('auth-unauthenticated-panel').style.display = 'block';
-                    document.getElementById('auth-authenticated-panel').style.display = 'none';
-                    document.getElementById('selling-authorized-zone').style.display = 'none';
-                    document.getElementById('selling-logged-out-msg').style.display = 'block';
+                    updateUIForLoggedOutState();
                 }
-            } catch (error) { console.error("Session check error:", error); }
-
+            } catch (err) {
+                console.error("Session integrity check error:", err);
+            }
+        }
 
         // --- MARKETPLACE RENDERING ---
         async function loadListings() {
