@@ -1,5 +1,5 @@
 import sqlite3
-from flask import Flask, render_template
+from flask import Flask, render_template, request, jsonify
 from flask_cors import CORS
 
 app = Flask(__name__, template_folder='templates')
@@ -29,5 +29,13 @@ def init_db():
 @app.route('/')
 def serve_frontend_page():
     return render_template('index.html')
+
+@app.route('/api/listings', methods=['GET'])
+def get_listings():
+    conn = get_db_connection()
+    listings = conn.execute('SELECT * FROM listings').fetchall()
+    conn.close()
+    return jsonify([dict(listing) for listing in listings])
+
 if __name__ == '__main__':
     app.run(debug=True, port=5000, host='0.0.0.0')
