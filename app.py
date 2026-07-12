@@ -76,7 +76,7 @@ def register():
 def login():
     data = request.get_json()
     if not data or not data.get('username') or not data.get('password'):
-        return jsonify({"error": "Username and password are required"}), 400
+        return jsonify({"error": "Missing credentials"}), 400
 
     conn = get_db_connection()
     user = conn.execute('SELECT * FROM users WHERE username = ?', (data['username'],)).fetchone()
@@ -85,9 +85,13 @@ def login():
     if user and check_password_hash(user['password_hash'], data['password']):
         session['user_id'] = user['id']
         session['username'] = user['username']
-        return jsonify({"message": "Login successful!"}), 200
-    else:
-        return jsonify({"error": "Invalid username or password"}), 401
+        session['contact_info'] = user['contact_info']
+        return jsonify({
+            "message": "Login successful",
+            "user": {"id": user['id'], "username": user['username'], "contact_info": user['contact_info']}
+        }), 200
+
+    return jsonify({"error": "Invalid username or password"}), 401
 
 @app.route('/api/listings', methods=['POST'])
 def create_listing():
