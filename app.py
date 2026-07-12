@@ -84,7 +84,7 @@ def delete_listing(item_id):
     conn.execute('DELETE FROM listings WHERE id = ?', (item_id,))
     conn.commit()
     conn.close()
-    return jsonify({"message": "Listing deleted successfully!"}), 200
+    return jsonify({"message": "Listing removed permanently."}), 200
 
 if __name__ == '__main__':
     init_db()
