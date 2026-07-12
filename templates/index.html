@@ -287,15 +287,15 @@
         }
 
         function populateEditForm(item) {
-            document.getElementById('form-title').innerText = "Edit Your Ad";
+            document.getElementById('form-title').innerText = `Modify Ad (ID: ${item.id})`;
             document.getElementById('item-id').value = item.id;
             document.getElementById('title').value = item.title;
             document.getElementById('category').value = item.category;
             document.getElementById('price').value = item.price_eur;
-            document.getElementById('status-container').style.display = "block";
             document.getElementById('status').value = item.status;
-            document.getElementById('btn-save').innerText = "Update Advertisement";
-            document.getElementById('btn-cancel').style.display = "inline-block";
+            document.getElementById('status-container').style.display = "block";
+            document.getElementById('btn-save').innerText = "Update Details";
+            document.getElementById('btn-cancel').style.display = "inline";
         }
 
         function resetForm() {
