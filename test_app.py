@@ -29,6 +29,14 @@ class MarketplaceTestCase(unittest.TestCase):
             "username": user, "password": pwd
         }), content_type='application/json')
 
+    def test_serve_buying_page(self):
+        """VIEW TEST: Verifies root path successfully serves the Buying/Browse template."""
+        response = self.app.get('/')
+        self.assertEqual(response.status_code, 200)
+        # Verify specific Jinja2 block strings exist in the HTML output
+        self.assertIn(b"Marketplace Dashboard", response.data)
+        self.assertIn(b"Filter listings by title or category", response.data)
+
     def test_add_marketplace_ad(self):
         """UNIT TEST: Verifies clean creation of a marketplace entry under an authenticated account."""
         payload = {"title": "Engineering Textbook", "category": "Books", "price_eur": 25.00}
