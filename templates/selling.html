@@ -67,7 +67,8 @@
                 if (item.seller_id === currentUserId) {
                     tbody.innerHTML += `
                         <tr>
-                            <td>${item.id}</td>
+                            <!-- Displaying the same alphanumeric DCM identifier used in the browse tab -->
+                            <td><code style="font-size:1.1em; font-weight:bold;">${item.dcm_id || 'N/A'}</code></td>
                             <td><strong>${item.title}</strong></td>
                             <td>${item.category}</td>
                             <td>&euro;${item.price_eur}</td>
@@ -111,8 +112,9 @@
     }
 
     function openEditMode(item) {
-        document.getElementById('form-title').innerText = `Modify Ad (ID: ${item.id})`;
-        document.getElementById('item-id').value = item.id;
+        // Keeps the alphanumeric custom ID in the header of the edit card for clear UX
+        document.getElementById('form-title').innerText = `Modify Ad (ID: ${item.dcm_id || item.id})`;
+        document.getElementById('item-id').value = item.id; // Still uses database primary key for requests
         document.getElementById('title').value = item.title;
         document.getElementById('category').value = item.category;
         document.getElementById('price').value = item.price_eur;
