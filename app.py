@@ -41,7 +41,7 @@ def init_db():
     conn.execute('''
         CREATE TABLE IF NOT EXISTS listings (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            dcm_id TEXT UNIQUE,  -- Added the alphanumeric custom identifier
+            dcm_id TEXT UNIQUE,
             title TEXT NOT NULL,
             category TEXT NOT NULL,
             price_eur REAL NOT NULL,
@@ -49,7 +49,9 @@ def init_db():
             contact_info TEXT NOT NULL,
             status TEXT NOT NULL DEFAULT 'Available',
             seller_id INTEGER,
-            FOREIGN KEY(seller_id) REFERENCES users(id) ON DELETE SET NULL
+            buyer_id INTEGER,
+            FOREIGN KEY(seller_id) REFERENCES users(id) ON DELETE SET NULL,
+            FOREIGN KEY(buyer_id) REFERENCES users(id) ON DELETE SET NULL
         )''')
     conn.commit()
     conn.close()
@@ -79,7 +81,6 @@ def route_profile_tab():
     """Serves the login, register, and active configuration profile data."""
     return render_template('login.html', active_page='profile')
 
-# --- AUTHENTICATION API ENDPOINTS ---
 @app.route('/api/auth/register', methods=['POST'])
 def register():
     data = request.get_json()
@@ -185,14 +186,17 @@ def update_listing(item_id):
         conn.close()
         return jsonify({"error": "Listing not found"}), 404
         
-    # Check permissions: item belongs to session owner or it's a "Buy Now" update changing to Sold
     if data.get('status') != 'Sold' and ('user_id' not in session or item['seller_id'] != session['user_id']):
         conn.close()
         return jsonify({"error": "Unauthorized mutation matrix exception"}), 403
         
+    buyer_id = item['buyer_id']
+    if data.get('status') == 'Sold':
+        buyer_id = session.get('user_id')
+
     conn.execute(
-        'UPDATE listings SET title = ?, category = ?, price_eur = ?, status = ? WHERE id = ?',
-        (data['title'], data['category'], float(data['price_eur']), data['status'], item_id)
+        'UPDATE listings SET title = ?, category = ?, price_eur = ?, status = ?, buyer_id = ? WHERE id = ?',
+        (data['title'], data['category'], float(data['price_eur']), data['status'], buyer_id, item_id)
     )
     conn.commit()
     conn.close()
