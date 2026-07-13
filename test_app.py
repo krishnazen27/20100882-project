@@ -44,6 +44,13 @@ class MarketplaceTestCase(unittest.TestCase):
         self.assertIn(b"Post a New Used Item Ad", response.data)
         self.assertIn(b"Your Current Managed Ads", response.data)
 
+    def test_serve_profile_page(self):
+        """VIEW TEST: Verifies /profile path serves the User Profile template details."""
+        response = self.app.get('/profile')
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(b"Your Account Metadata Info", response.data)
+        self.assertIn(b"Username Handle:", response.data)
+
     def test_add_marketplace_ad(self):
         """UNIT TEST: Verifies clean creation of a marketplace entry under an authenticated account."""
         payload = {"title": "Engineering Textbook", "category": "Books", "price_eur": 25.00}
