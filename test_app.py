@@ -1,6 +1,7 @@
 import unittest
 import json
 import os
+import re
 from app import app, init_db
 
 TEST_DB_FILE = 'test_classifieds.db'
@@ -20,11 +21,9 @@ class MarketplaceTestCase(unittest.TestCase):
             os.remove(TEST_DB_FILE)
 
     def register_and_login_helper(self, user, pwd):
-        # Register a test runner profile
         self.app.post('/api/auth/register', data=json.dumps({
             "username": user, "password": pwd, "contact_info": "test@domain.com"
         }), content_type='application/json')
-        # Login to inject cookies into client container
         self.app.post('/api/auth/login', data=json.dumps({
             "username": user, "password": pwd
         }), content_type='application/json')
@@ -33,9 +32,8 @@ class MarketplaceTestCase(unittest.TestCase):
         """VIEW TEST: Verifies root path successfully serves the Buying/Browse template."""
         response = self.app.get('/')
         self.assertEqual(response.status_code, 200)
-        # Verify specific Jinja2 block strings exist in the HTML output
         self.assertIn(b"Marketplace Dashboard", response.data)
-        self.assertIn(b"Filter listings by title or category", response.data)
+        self.assertIn(b"Filter listings by ID, title, category, or seller", response.data)
     
     def test_serve_selling_page_authenticated(self):
         """VIEW TEST: Verifies /selling path renders management dashboard for logged-in sessions."""
@@ -52,12 +50,21 @@ class MarketplaceTestCase(unittest.TestCase):
         self.assertIn(b"Username Handle:", response.data)
 
     def test_add_marketplace_ad(self):
-        """UNIT TEST: Verifies clean creation of a marketplace entry under an authenticated account."""
-        payload = {"title": "Engineering Textbook", "category": "Books", "price_eur": 25.00}
+        """UNIT TEST: Verifies clean creation of an entry including description and custom dcm_id generation."""
+        payload = {
+            "title": "Engineering Textbook", 
+            "category": "Books", 
+            "price_eur": 25.00,
+            "description": "Like new condition. No highlighting." 
+        }
         response = self.app.post('/api/listings', data=json.dumps(payload), content_type='application/json')
         data = json.loads(response.data)
         self.assertEqual(response.status_code, 201)
+        
         self.assertIn("id", data)
+        self.assertIn("dcm_id", data)
+        
+        self.assertTrue(re.match(r"^DCM-[A-Z0-9]{5}$", data["dcm_id"]))
 
     def test_missing_input_validation(self):
         """INTEGRITY TEST: Assures server rejects incomplete parameters."""
@@ -67,11 +74,11 @@ class MarketplaceTestCase(unittest.TestCase):
 
     def test_buy_now_status_update(self):
         """FUNCTIONAL TEST: Verifies changing listing status to 'Sold' via simulated checkout (Buy Now)."""
-        item = {"title": "Yamaha YZF-R3", "category": "Motors", "price_eur": 3200.00}
+        item = {"title": "Yamaha YZF-R3", "category": "Motors", "price_eur": 3200.00, "description": "Fast bike"}
         post_res = self.app.post('/api/listings', data=json.dumps(item), content_type='application/json')
         item_id = json.loads(post_res.data)['id']
 
-        updated_payload = {"title": "Yamaha YZF-R3", "category": "Motors", "price_eur": 3200.00, "status": "Sold"}
+        updated_payload = {"title": "Yamaha YZF-R3", "category": "Motors", "price_eur": 3200.00, "status": "Sold", "description": "Fast bike"}
         put_res = self.app.put(f'/api/listings/{item_id}', data=json.dumps(updated_payload), content_type='application/json')
         self.assertEqual(put_res.status_code, 200)
 
