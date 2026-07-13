@@ -87,7 +87,8 @@ def post_ad_as_user(username, payload):
         with urllib.request.urlopen(ad_req, timeout=3) as response:
             if response.status == 201:
                 res_body = json.loads(response.read().decode())
-                print(f"[Success] Created Listing #{res_body.get('id')}: {payload['title']} (€{payload['price_eur']}) in [{payload['category']}] by {username}")
+                custom_id = res_body.get('dcm_id', 'N/A')
+                print(f"[Success] Created Listing {custom_id}: {payload['title']} (€{payload['price_eur']}) in [{payload['category']}] by {username}")
                 return True
     except Exception as e:
         print(f"[Error] Failed to post item: {e}")
@@ -123,5 +124,4 @@ def seed_database(count=10):
         post_ad_as_user(random_seller, payload)
 
 if __name__ == "__main__":
-    # Adjust count to inject more or fewer items
     seed_database(count=12)
