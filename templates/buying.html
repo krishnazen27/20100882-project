@@ -3,12 +3,13 @@
 {% block content %}
 <h2>Marketplace Dashboard</h2>
 <div class="form-group">
-    <input type="text" id="search-input" placeholder="Filter listings by title or category..." style="width:100%; max-width:400px; padding:8px;">
+    <input type="text" id="search-input" placeholder="Filter listings by ID, title, category, or seller..." style="width:100%; max-width:400px; padding:8px;">
 </div>
 
 <table border="1">
     <thead>
         <tr>
+            <th>Item ID</th> <!-- New Column -->
             <th>Title</th>
             <th>Category</th>
             <th>Price (EUR)</th>
@@ -45,6 +46,7 @@
                 
                 tbody.innerHTML += `
                     <tr>
+                        <td><code style="font-size:1.1em; font-weight:bold; color:#d9534f;">${item.dcm_id || 'N/A'}</code></td> <!-- Render Custom ID -->
                         <td><strong>${item.title}</strong></td>
                         <td>${item.category}</td>
                         <td>&euro;${item.price_eur.toFixed(2)}</td>

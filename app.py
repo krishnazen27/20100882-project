@@ -2,6 +2,8 @@ import os
 import sqlite3
 import urllib.request
 import json
+import random
+import string
 from flask import Flask, request, jsonify, render_template, session
 from flask_cors import CORS
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -10,7 +12,11 @@ app = Flask(__name__, template_folder='templates')
 app.secret_key = 'super_secret_dev_key_for_session_management'
 CORS(app, supports_credentials=True)
 
-# --- DYNAMIC DATABASE SEPARATION ---
+def generate_dcm_id():
+    chars = string.ascii_uppercase + string.digits
+    suffix = ''.join(random.choices(chars, k=5))
+    return f"DCM-{suffix}"
+
 def get_db_file():
     if app.config.get('TESTING'):
         return 'test_classifieds.db'
@@ -19,12 +25,11 @@ def get_db_file():
 def get_db_connection():
     conn = sqlite3.connect(get_db_file())
     conn.row_factory = sqlite3.Row
-    conn.execute("PRAGMA foreign_keys = ON;") # Enforce data relationships
+    conn.execute("PRAGMA foreign_keys = ON;")
     return conn
 
 def init_db():
     conn = get_db_connection()
-    # Create Users Account Grid
     conn.execute('''
         CREATE TABLE IF NOT EXISTS users (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -33,10 +38,10 @@ def init_db():
             contact_info TEXT NOT NULL
         )''')
     
-    # Update listings table to point explicitly to unique user IDs
     conn.execute('''
         CREATE TABLE IF NOT EXISTS listings (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
+            dcm_id TEXT UNIQUE,  -- Added the alphanumeric custom identifier
             title TEXT NOT NULL,
             category TEXT NOT NULL,
             price_eur REAL NOT NULL,
@@ -128,27 +133,28 @@ def get_session():
         }), 200
     return jsonify({"logged_in": False}), 200
 
-# --- UPDATED LISTINGS API WITH USER RELATIONSHIPS ---
 @app.route('/api/listings', methods=['POST'])
 def create_listing():
-    data = request.get_json()
-    # Explicit enforcement: must be logged in to create an ad
     if 'user_id' not in session:
         return jsonify({"error": "Authentication required to post an ad"}), 401
         
+    data = request.get_json()
     if not data or not data.get('title') or not data.get('price_eur'):
         return jsonify({"error": "Missing required fields"}), 400
     
     conn = get_db_connection()
     cursor = conn.cursor()
+    
+    custom_id = generate_dcm_id()
+    
     cursor.execute(
-        'INSERT INTO listings (title, category, price_eur, seller_name, contact_info, status, seller_id) VALUES (?, ?, ?, ?, ?, ?, ?)',
-        (data['title'], data.get('category', 'General'), float(data['price_eur']), session['username'], session['contact_info'], 'Available', session['user_id'])
+        'INSERT INTO listings (dcm_id, title, category, price_eur, seller_name, contact_info, status, seller_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+        (custom_id, data['title'], data.get('category', 'General'), float(data['price_eur']), session['username'], session['contact_info'], 'Available', session['user_id'])
     )
     conn.commit()
     new_id = cursor.lastrowid
     conn.close()
-    return jsonify({"id": new_id, "message": "Ad listed successfully!"}), 201
+    return jsonify({"id": new_id, "dcm_id": custom_id, "message": "Ad listed successfully!"}), 201
 
 @app.route('/api/listings', methods=['GET'])
 def read_listings():
@@ -156,8 +162,8 @@ def read_listings():
     search_query = request.args.get('search', '')
     if search_query:
         rows = conn.execute(
-            'SELECT * FROM listings WHERE title LIKE ? OR category LIKE ? OR seller_name LIKE ?',
-            (f'%{search_query}%', f'%{search_query}%', f'%{search_query}%')
+            'SELECT * FROM listings WHERE title LIKE ? OR category LIKE ? OR seller_name LIKE ? OR dcm_id LIKE ?',
+            (f'%{search_query}%', f'%{search_query}%', f'%{search_query}%', f'%{search_query}%')
         ).fetchall()
     else:
         rows = conn.execute('SELECT * FROM listings').fetchall()
