@@ -36,6 +36,13 @@ class MarketplaceTestCase(unittest.TestCase):
         # Verify specific Jinja2 block strings exist in the HTML output
         self.assertIn(b"Marketplace Dashboard", response.data)
         self.assertIn(b"Filter listings by title or category", response.data)
+    
+    def test_serve_selling_page_authenticated(self):
+        """VIEW TEST: Verifies /selling path renders management dashboard for logged-in sessions."""
+        response = self.app.get('/selling')
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(b"Post a New Used Item Ad", response.data)
+        self.assertIn(b"Your Current Managed Ads", response.data)
 
     def test_add_marketplace_ad(self):
         """UNIT TEST: Verifies clean creation of a marketplace entry under an authenticated account."""
