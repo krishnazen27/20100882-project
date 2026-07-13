@@ -23,7 +23,42 @@
         <h2>Your Account Metadata Info</h2>
         <p><strong>Username Handle:</strong> {{ session.get('username') }}</p>
         <p><strong>Linked Contact Matrix:</strong> {{ session.get('contact_info') }}</p>
-        <button class="btn-buy" style="background:#dc3545;" onclick="authAction('logout')">Terminate Session (Logout)</button>
+        <button class="btn-buy" style="background:#dc3545; margin-bottom: 30px;" onclick="authAction('logout')">Terminate Session (Logout)</button>
+
+        <hr>
+
+        <h3>Your Listed Ads</h3>
+        <table border="1" style="margin-bottom: 30px;">
+            <thead>
+                <tr>
+                    <th>Item ID</th>
+                    <th>Title</th>
+                    <th>Category</th>
+                    <th>Price (EUR)</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody id="user-listed-items-body">
+                <tr><td colspan="5" style="text-align: center;">Loading your listings...</td></tr>
+            </tbody>
+        </table>
+
+
+        <h3>Your Purchased Items</h3>
+        <table border="1">
+            <thead>
+                <tr>
+                    <th>Item ID</th>
+                    <th>Title</th>
+                    <th>Category</th>
+                    <th>Price (EUR)</th>
+                    <th>Seller Contact</th>
+                </tr>
+            </thead>
+            <tbody id="user-bought-items-body">
+                <tr><td colspan="5" style="text-align: center;">Loading your purchases...</td></tr>
+            </tbody>
+        </table>
     </div>
 {% endif %}
 {% endblock %}
@@ -59,5 +94,57 @@
             alert("Error: " + data.error);
         }
     }
+
+
+    async function loadUserDashboardData() {
+
+        const listedBody = document.getElementById('user-listed-items-body');
+        const boughtBody = document.getElementById('user-bought-items-body');
+        if (!listedBody || !boughtBody) return;
+
+        try {
+            const response = await fetch(`${API_BASE}/listings`);
+            const listings = await response.json();
+            
+            const currentUserId = {{ session.get('user_id') or 'null' }};
+            if (!currentUserId) return;
+
+            let listedHtml = '';
+            let boughtHtml = '';
+
+            listings.forEach(item => {
+
+                if (item.seller_id === currentUserId) {
+                    listedHtml += `
+                        <tr>
+                            <td><code style="font-size:1.1em; font-weight:bold;">${item.dcm_id || 'N/A'}</code></td>
+                            <td><strong>${item.title}</strong></td>
+                            <td>${item.category}</td>
+                            <td>&euro;${item.price_eur.toFixed(2)}</td>
+                            <td><span style="color:${item.status === 'Sold' ? 'red' : 'green'}">${item.status}</span></td>
+                        </tr>`;
+                }
+
+                if (item.buyer_id === currentUserId) {
+                    boughtHtml += `
+                        <tr>
+                            <td><code style="font-size:1.1em; font-weight:bold;">${item.dcm_id || 'N/A'}</code></td>
+                            <td><strong>${item.title}</strong></td>
+                            <td>${item.category}</td>
+                            <td>&euro;${item.price_eur.toFixed(2)}</td>
+                            <td><button onclick="alert('Seller Contact: ${item.contact_info}')">Contact Seller</button></td>
+                        </tr>`;
+                }
+            });
+
+            listedBody.innerHTML = listedHtml || `<tr><td colspan="5" style="text-align:center;">You have not listed any ads yet.</td></tr>`;
+            boughtBody.innerHTML = boughtHtml || `<tr><td colspan="5" style="text-align:center;">You have not purchased any items yet.</td></tr>`;
+
+        } catch (err) {
+            console.error("Dashboard list populate error:", err);
+        }
+    }
+
+    window.onload = loadUserDashboardData;
 </script>
 {% endblock %}
