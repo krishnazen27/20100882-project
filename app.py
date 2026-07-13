@@ -156,8 +156,8 @@ def read_listings():
     search_query = request.args.get('search', '')
     if search_query:
         rows = conn.execute(
-            'SELECT * FROM listings WHERE title LIKE ? OR category LIKE ?',
-            (f'%{search_query}%', f'%{search_query}%')
+            'SELECT * FROM listings WHERE title LIKE ? OR category LIKE ? OR seller_name LIKE ?',
+            (f'%{search_query}%', f'%{search_query}%', f'%{search_query}%')
         ).fetchall()
     else:
         rows = conn.execute('SELECT * FROM listings').fetchall()
