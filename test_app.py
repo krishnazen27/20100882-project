@@ -110,5 +110,14 @@ class MarketplaceTestCase(unittest.TestCase):
         data_cat = json.loads(res_cat.data)
         self.assertTrue(any(item['category'] == 'Furniture' for item in data_cat))
 
+        res_seller = self.app.get('/api/listings?search=testuser')
+        data_seller = json.loads(res_seller.data)
+        self.assertTrue(any(item['seller_name'] == 'testuser' for item in data_seller))
+
+        res_id = self.app.get(f'/api/listings?search={dcm_id}')
+        data_id = json.loads(res_id.data)
+        self.assertEqual(len(data_id), 1)
+        self.assertEqual(data_id[0]['dcm_id'], dcm_id)
+
 if __name__ == '__main__':
     unittest.main(verbosity=2)
