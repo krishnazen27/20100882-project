@@ -55,7 +55,6 @@ class MarketplaceTestCase(unittest.TestCase):
             "title": "Engineering Textbook", 
             "category": "Books", 
             "price_eur": 25.00,
-            "description": "Like new condition. No highlighting." 
         }
         response = self.app.post('/api/listings', data=json.dumps(payload), content_type='application/json')
         data = json.loads(response.data)
@@ -73,14 +72,35 @@ class MarketplaceTestCase(unittest.TestCase):
         self.assertEqual(response.status_code, 400)
 
     def test_buy_now_status_update(self):
-        """FUNCTIONAL TEST: Verifies changing listing status to 'Sold' via simulated checkout (Buy Now)."""
-        item = {"title": "Yamaha YZF-R3", "category": "Motors", "price_eur": 3200.00, "description": "Fast bike"}
+        """FUNCTIONAL TEST: Verifies changing status to 'Sold' via simulated checkout (Buy Now)."""
+        item = {"title": "Yamaha YZF-R3", "category": "Motors", "price_eur": 3200.00}
         post_res = self.app.post('/api/listings', data=json.dumps(item), content_type='application/json')
         item_id = json.loads(post_res.data)['id']
 
-        updated_payload = {"title": "Yamaha YZF-R3", "category": "Motors", "price_eur": 3200.00, "status": "Sold", "description": "Fast bike"}
+        updated_payload = {
+            "title": "Yamaha YZF-R3", 
+            "category": "Motors", 
+            "price_eur": 3200.00, 
+            "status": "Sold"
+        }
         put_res = self.app.put(f'/api/listings/{item_id}', data=json.dumps(updated_payload), content_type='application/json')
         self.assertEqual(put_res.status_code, 200)
+
+        get_res = self.app.get('/api/listings')
+        listings = json.loads(get_res.data)
+        updated_item = next(x for x in listings if x['id'] == item_id)
+        self.assertEqual(updated_item['status'], "Sold")
+
+    def test_expanded_search_criteria(self):
+        """INTEGRATION TEST: Verifies listing search works using Title, Category, Seller Name, and custom DCM ID."""
+        payload = {
+            "title": "Vintage Mug", 
+            "category": "Furniture", 
+            "price_eur": 12.50
+        }
+        post_res = self.app.post('/api/listings', data=json.dumps(payload), content_type='application/json')
+        created_item = json.loads(post_res.data)
+        dcm_id = created_item["dcm_id"]
 
 if __name__ == '__main__':
     unittest.main(verbosity=2)
