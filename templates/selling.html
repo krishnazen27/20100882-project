@@ -1,0 +1,139 @@
+{% extends 'base.html' %}
+
+{% block content %}
+{% if not session.get('user_id') %}
+    <div style="background-color: #f8d7da; color: #721c24; padding: 15px; border-radius: 4px;">
+        <h3>Access Denied</h3>
+        <p>You must be authenticated to list items or manage storefront advertisements. Please sign in under the User Info tab.</p>
+    </div>
+{% else %}
+    <h3 id="form-title">Post a New Used Item Ad</h3>
+    <input type="hidden" id="item-id">
+    
+    <div class="form-group">
+        <label>Item Title:</label>
+        <input type="text" id="title" placeholder="e.g. iPhone 13">
+    </div>
+    <div class="form-group">
+        <label>Category:</label>
+        <select id="category">
+            <option value="Electronics">Electronics</option>
+            <option value="Motors">Motors</option>
+            <option value="Books">Books</option>
+            <option value="Sports & Outdoors">Sports & Outdoors</option>
+            <option value="Furniture">Furniture</option>
+            <option value="Clothing">Clothing</option>
+        </select>
+    </div>
+    <div class="form-group">
+        <label>Price (&euro; EUR):</label>
+        <input type="number" id="price" step="0.01">
+    </div>
+    <div class="form-group" id="status-container" style="display:none;">
+        <label>Status:</label>
+        <select id="status">
+            <option value="Available">Available</option>
+            <option value="Sold">Sold</option>
+        </select>
+    </div>
+    
+    <button class="btn-buy" id="btn-save" onclick="saveListing()">Post Advertisement</button>
+    <button id="btn-cancel" onclick="resetForm()" style="display:none;">Cancel Edit</button>
+
+    <hr style="margin: 30px 0;">
+    <h3>Your Current Managed Ads</h3>
+    <table border="1">
+        <thead>
+            <tr><th>ID</th><th>Title</th><th>Category</th><th>Price</th><th>Status</th><th>Management Actions</th></tr>
+        </thead>
+        <tbody id="user-ads-table-body"></tbody>
+    </table>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+{% if session.get('user_id') %}
+<script>
+    async function loadUserManagedAds() {
+        try {
+            const response = await fetch(`${API_BASE}/listings`);
+            const listings = await response.json();
+            const tbody = document.getElementById('user-ads-table-body');
+            tbody.innerHTML = '';
+            
+            const currentUserId = {{ session.get('user_id') }};
+            
+            listings.forEach(item => {
+                if (item.seller_id === currentUserId) {
+                    tbody.innerHTML += `
+                        <tr>
+                            <!-- Displaying the same alphanumeric DCM identifier used in the browse tab -->
+                            <td><code style="font-size:1.1em; font-weight:bold;">${item.dcm_id || 'N/A'}</code></td>
+                            <td><strong>${item.title}</strong></td>
+                            <td>${item.category}</td>
+                            <td>&euro;${item.price_eur}</td>
+                            <td><em>${item.status}</em></td>
+                            <td>
+                                <button onclick='openEditMode(${JSON.stringify(item)})'>Edit</button>
+                                <button style="background:red; color:white; border:none; border-radius:3px; padding:3px 8px; cursor:pointer;" onclick="deleteAd('${item.dcm_id}')">Delete</button>
+                            </td>
+                        </tr>`;
+                }
+            });
+        } catch (err) { console.error(err); }
+    }
+
+    async function saveListing() {
+        const id = document.getElementById('item-id').value;
+        const title = document.getElementById('title').value;
+        const category = document.getElementById('category').value;
+        const price_eur = document.getElementById('price').value;
+        const status = document.getElementById('status').value || 'Available';
+
+        if (!title || !price_eur) { alert("Missing arguments."); return; }
+
+        const payload = { title, category, price_eur, status };
+        const url = id ? `${API_BASE}/listings/${id}` : `${API_BASE}/listings`;
+        const method = id ? 'PUT' : 'POST';
+
+        const response = await fetch(url, {
+            method: method,
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+
+        if (response.ok) { resetForm(); loadUserManagedAds(); }
+    }
+
+    async function deleteAd(id) {
+        if (confirm("Delete listing permanently?") && (await fetch(`${API_BASE}/listings/${id}`, { method: 'DELETE' })).ok) {
+            loadUserManagedAds();
+        }
+    }
+
+    function openEditMode(item) {
+        document.getElementById('form-title').innerText = `Modify Ad (ID: ${item.dcm_id})`;
+        document.getElementById('item-id').value = item.dcm_id;
+        document.getElementById('title').value = item.title;
+        document.getElementById('category').value = item.category;
+        document.getElementById('price').value = item.price_eur;
+        document.getElementById('status').value = item.status;
+        document.getElementById('status-container').style.display = "block";
+        document.getElementById('btn-save').innerText = "Update Details";
+        document.getElementById('btn-cancel').style.display = "inline-block";
+    }
+
+    function resetForm() {
+        document.getElementById('form-title').innerText = "Post a New Used Item Ad";
+        document.getElementById('item-id').value = '';
+        document.getElementById('title').value = '';
+        document.getElementById('price').value = '';
+        document.getElementById('status-container').style.display = "none";
+        document.getElementById('btn-save').innerText = "Post Advertisement";
+        document.getElementById('btn-cancel').style.display = "none";
+    }
+
+    window.onload = loadUserManagedAds;
+</script>
+{% endif %}
+{% endblock %}
