@@ -2,20 +2,35 @@
 
 {% block content %}
 {% if not session.get('user_id') %}
-    <div style="display:flex; gap:40px; flex-wrap: wrap;">
-        <div style="flex:1; min-width:300px; border:1px solid #ccc; padding:20px; border-radius:6px; background:#fff;">
+    <div>
+        <div>
             <h3>Account Sign In</h3>
-            <div class="form-group"><label>Username:</label><input type="text" id="log-user"></div>
-            <div class="form-group"><label>Password:</label><input type="password" id="log-pass"></div>
-            <button class="btn-buy" onclick="authAction('login')">Login</button>
+            <p>
+                <label>Username:</label><br>
+                <input type="text" id="log-user">
+            </p>
+            <p>
+                <label>Password:</label><br>
+                <input type="password" id="log-pass">
+            </p>
+            <button onclick="authAction('login')">Login</button>
         </div>
-        
-        <div style="flex:1; min-width:300px; border:1px solid #ccc; padding:20px; border-radius:6px; background:#fff;">
+        <hr>
+        <div>
             <h3>Register Profile</h3>
-            <div class="form-group"><label>Username:</label><input type="text" id="reg-user"></div>
-            <div class="form-group"><label>Password:</label><input type="password" id="reg-pass"></div>
-            <div class="form-group"><label>Contact Details:</label><input type="text" id="reg-contact" placeholder="Email or Phone"></div>
-            <button class="btn-buy" style="background:#007bff;" onclick="authAction('register')">Create Account</button>
+            <p>
+                <label>Username:</label><br>
+                <input type="text" id="reg-user">
+            </p>
+            <p>
+                <label>Password:</label><br>
+                <input type="password" id="reg-pass">
+            </p>
+            <p>
+                <label>Contact Details:</label><br>
+                <input type="text" id="reg-contact" placeholder="Email or Phone">
+            </p>
+            <button onclick="authAction('register')">Create Account</button>
         </div>
     </div>
 {% else %}
@@ -23,12 +38,12 @@
         <h2>Your Account Metadata Info</h2>
         <p><strong>Username Handle:</strong> {{ session.get('username') }}</p>
         <p><strong>Linked Contact Matrix:</strong> {{ session.get('contact_info') }}</p>
-        <button class="btn-buy" style="background:#dc3545; margin-bottom: 30px;" onclick="authAction('logout')">Terminate Session (Logout)</button>
+        <button onclick="authAction('logout')">Terminate Session (Logout)</button>
 
         <hr>
 
         <h3>Your Listed Ads</h3>
-        <table border="1" style="margin-bottom: 30px;">
+        <table border="1">
             <thead>
                 <tr>
                     <th>Item ID</th>
@@ -39,10 +54,9 @@
                 </tr>
             </thead>
             <tbody id="user-listed-items-body">
-                <tr><td colspan="5" style="text-align: center;">Loading your listings...</td></tr>
+                <tr><td colspan="5" align="center">Loading your listings...</td></tr>
             </tbody>
         </table>
-
 
         <h3>Your Purchased Items</h3>
         <table border="1">
@@ -56,7 +70,7 @@
                 </tr>
             </thead>
             <tbody id="user-bought-items-body">
-                <tr><td colspan="5" style="text-align: center;">Loading your purchases...</td></tr>
+                <tr><td colspan="5" align="center">Loading your purchases...</td></tr>
             </tbody>
         </table>
     </div>
@@ -95,9 +109,7 @@
         }
     }
 
-
     async function loadUserDashboardData() {
-
         const listedBody = document.getElementById('user-listed-items-body');
         const boughtBody = document.getElementById('user-bought-items-body');
         if (!listedBody || !boughtBody) return;
@@ -113,11 +125,10 @@
             let boughtHtml = '';
 
             listings.forEach(item => {
-
                 if (item.seller_id === currentUserId) {
                     listedHtml += `
                         <tr>
-                            <td><code style="font-size:1.1em; font-weight:bold;">${item.dcm_id || 'N/A'}</code></td>
+                            <td>${item.dcm_id || 'N/A'}</td>
                             <td><strong>${item.title}</strong></td>
                             <td>${item.category}</td>
                             <td>&euro;${item.price_eur.toFixed(2)}</td>
@@ -128,7 +139,7 @@
                 if (item.buyer_id === currentUserId) {
                     boughtHtml += `
                         <tr>
-                            <td><code style="font-size:1.1em; font-weight:bold;">${item.dcm_id || 'N/A'}</code></td>
+                            <td>${item.dcm_id || 'N/A'}</td>
                             <td><strong>${item.title}</strong></td>
                             <td>${item.category}</td>
                             <td>&euro;${item.price_eur.toFixed(2)}</td>
@@ -137,8 +148,8 @@
                 }
             });
 
-            listedBody.innerHTML = listedHtml || `<tr><td colspan="5" style="text-align:center;">You have not listed any ads yet.</td></tr>`;
-            boughtBody.innerHTML = boughtHtml || `<tr><td colspan="5" style="text-align:center;">You have not purchased any items yet.</td></tr>`;
+            listedBody.innerHTML = listedHtml || `<tr><td colspan="5" align="center">You have not listed any ads yet.</td></tr>`;
+            boughtBody.innerHTML = boughtHtml || `<tr><td colspan="5" align="center">You have not purchased any items yet.</td></tr>`;
 
         } catch (err) {
             console.error("Dashboard list populate error:", err);
