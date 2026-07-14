@@ -75,7 +75,7 @@
                             <td><em>${item.status}</em></td>
                             <td>
                                 <button onclick='openEditMode(${JSON.stringify(item)})'>Edit</button>
-                                <button style="background:red; color:white; border:none; border-radius:3px; padding:3px 8px; cursor:pointer;" onclick="deleteAd(${item.id})">Delete</button>
+                                <button style="background:red; color:white; border:none; border-radius:3px; padding:3px 8px; cursor:pointer;" onclick="deleteAd('${item.dcm_id}')">Delete</button>
                             </td>
                         </tr>`;
                 }
@@ -112,9 +112,8 @@
     }
 
     function openEditMode(item) {
-        // Keeps the alphanumeric custom ID in the header of the edit card for clear UX
-        document.getElementById('form-title').innerText = `Modify Ad (ID: ${item.dcm_id || item.id})`;
-        document.getElementById('item-id').value = item.id; // Still uses database primary key for requests
+        document.getElementById('form-title').innerText = `Modify Ad (ID: ${item.dcm_id})`;
+        document.getElementById('item-id').value = item.dcm_id;
         document.getElementById('title').value = item.title;
         document.getElementById('category').value = item.category;
         document.getElementById('price').value = item.price_eur;

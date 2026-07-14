@@ -40,8 +40,7 @@ def init_db():
     
     conn.execute('''
         CREATE TABLE IF NOT EXISTS listings (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            dcm_id TEXT UNIQUE,
+            dcm_id TEXT PRIMARY KEY, -- Designated as Primary Key
             title TEXT NOT NULL,
             category TEXT NOT NULL,
             price_eur REAL NOT NULL,
@@ -145,7 +144,6 @@ def create_listing():
     
     conn = get_db_connection()
     cursor = conn.cursor()
-    
     custom_id = generate_dcm_id()
     
     cursor.execute(
@@ -153,9 +151,8 @@ def create_listing():
         (custom_id, data['title'], data.get('category', 'General'), float(data['price_eur']), session['username'], session['contact_info'], 'Available', session['user_id'])
     )
     conn.commit()
-    new_id = cursor.lastrowid
     conn.close()
-    return jsonify({"id": new_id, "dcm_id": custom_id, "message": "Ad listed successfully!"}), 201
+    return jsonify({"dcm_id": custom_id, "message": "Ad listed successfully!"}), 201
 
 @app.route('/api/listings', methods=['GET'])
 def read_listings():
@@ -177,11 +174,11 @@ def read_listings():
         listings_list.append(item)
     return jsonify(listings_list), 200
 
-@app.route('/api/listings/<int:item_id>', methods=['PUT'])
+@app.route('/api/listings/<string:item_id>', methods=['PUT'])
 def update_listing(item_id):
     data = request.get_json()
     conn = get_db_connection()
-    item = conn.execute('SELECT * FROM listings WHERE id = ?', (item_id,)).fetchone()
+    item = conn.execute('SELECT * FROM listings WHERE dcm_id = ?', (item_id,)).fetchone()
     if not item:
         conn.close()
         return jsonify({"error": "Listing not found"}), 404
@@ -190,34 +187,38 @@ def update_listing(item_id):
         conn.close()
         return jsonify({"error": "Unauthorized mutation matrix exception"}), 403
         
-    buyer_id = item['buyer_id']
+    buyer_id = None
     if data.get('status') == 'Sold':
-        buyer_id = session.get('user_id')
+        if 'user_id' not in session:
+            conn.close()
+            return jsonify({"error": "You must be logged in to buy items"}), 401
+        buyer_id = session['user_id']
+    else:
+        buyer_id = item['buyer_id']
 
     conn.execute(
-        'UPDATE listings SET title = ?, category = ?, price_eur = ?, status = ?, buyer_id = ? WHERE id = ?',
+        'UPDATE listings SET title = ?, category = ?, price_eur = ?, status = ?, buyer_id = ? WHERE dcm_id = ?',
         (data['title'], data['category'], float(data['price_eur']), data['status'], buyer_id, item_id)
     )
     conn.commit()
     conn.close()
     return jsonify({"message": "Listing updated successfully!"}), 200
 
-@app.route('/api/listings/<int:item_id>', methods=['DELETE'])
+@app.route('/api/listings/<string:item_id>', methods=['DELETE'])
 def delete_listing(item_id):
     if 'user_id' not in session:
         return jsonify({"error": "Authentication required"}), 401
         
     conn = get_db_connection()
-    item = conn.execute('SELECT * FROM listings WHERE id = ?', (item_id,)).fetchone()
+    item = conn.execute('SELECT * FROM listings WHERE dcm_id = ?', (item_id,)).fetchone()
     if not item:
         conn.close()
         return jsonify({"error": "Listing not found"}), 404
         
     if item['seller_id'] != session['user_id']:
         conn.close()
-        return jsonify({"error": "You do not own this ad"}), 403
-        
-    conn.execute('DELETE FROM listings WHERE id = ?', (item_id,))
+        return jsonify({"error": "You do not own this ad"}), 403        
+    conn.execute('DELETE FROM listings WHERE dcm_id = ?', (item_id,))
     conn.commit()
     conn.close()
     return jsonify({"message": "Listing removed permanently."}), 200
