@@ -3,10 +3,8 @@ import json
 import random
 import http.cookiejar
 
-# API Base URL for your local classifieds portal
 API_BASE = "http://127.0.0.1:5000/api"
 
-# Sample pools for generating randomized listings
 titles_by_category = {
     "Electronics": ["iPhone 13 Pro", "Sony WH-1000XM4 Headphones", "Mechanical Keyboard", "Dell 27-inch Monitor", "Nintendo Switch"],
     "Motors": ["2015 Ford Focus", "Honda Civic VTEC", "Yamaha YZF-R3 Motorcycle", "Used Vespa Scooter", "Roof Rack Carrier"],
@@ -16,11 +14,9 @@ titles_by_category = {
     "Clothing": ["Vintage Leather Jacket", "Nike Air Max Sneakers", "Patagonia Fleece", "Designer Sunglasses", "Waterproof Raincoat"]
 }
 
-# Seed accounts to register and build session states with
 seed_users = ["Sivak", "Alice", "John", "Emma", "Liam", "Sophia", "Michael", "Chloe"]
 domains = ["gmail.com", "yahoo.com", "hotmail.com", "outlook.ie"]
 
-# Setup a global cookie handler to automatically store session cookies across requests
 cookie_jar = http.cookiejar.CookieJar()
 opener = urllib.request.build_opener(urllib.request.HTTPCookieProcessor(cookie_jar))
 urllib.request.install_opener(opener)
@@ -32,7 +28,6 @@ def register_and_login_users():
         contact_info = f"{user.lower()}26@{random.choice(domains)}"
         password = f"password_{user.lower()}"
         
-        # 1. Register Account
         reg_payload = json.dumps({
             "username": user,
             "password": password,
@@ -50,7 +45,6 @@ def register_and_login_users():
             with urllib.request.urlopen(reg_req, timeout=3) as response:
                 pass
         except Exception:
-            # If user already exists (409), just ignore and proceed
             pass
 
 def post_ad_as_user(username, payload):
@@ -58,7 +52,6 @@ def post_ad_as_user(username, payload):
     password = f"password_{username.lower()}"
     login_payload = json.dumps({"username": username, "password": password}).encode('utf-8')
     
-    # 1. Login to set session state
     login_req = urllib.request.Request(
         f"{API_BASE}/auth/login",
         data=login_payload,
@@ -74,7 +67,6 @@ def post_ad_as_user(username, payload):
         print(f"[Auth Error] Could not authenticate session for {username}: {e}")
         return False
 
-    # 2. Post Listing (Cookie Jar automatically appends the login session cookie)
     ad_data = json.dumps(payload).encode('utf-8')
     ad_req = urllib.request.Request(
         f"{API_BASE}/listings",

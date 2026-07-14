@@ -24,6 +24,7 @@ class MarketplaceTestCase(unittest.TestCase):
         self.app.post('/api/auth/register', data=json.dumps({
             "username": user, "password": pwd, "contact_info": "test@domain.com"
         }), content_type='application/json')
+
         self.app.post('/api/auth/login', data=json.dumps({
             "username": user, "password": pwd
         }), content_type='application/json')
@@ -32,7 +33,9 @@ class MarketplaceTestCase(unittest.TestCase):
         """VIEW TEST: Verifies root path successfully serves the Buying/Browse template."""
         response = self.app.get('/')
         self.assertEqual(response.status_code, 200)
+
         self.assertIn(b"Marketplace Dashboard", response.data)
+
         self.assertIn(b"Filter listings by ID, title, category, or seller", response.data)
     
     def test_serve_selling_page_authenticated(self):
@@ -50,18 +53,18 @@ class MarketplaceTestCase(unittest.TestCase):
         self.assertIn(b"Username Handle:", response.data)
 
     def test_add_marketplace_ad(self):
-        """UNIT TEST: Verifies clean creation of an entry including description and custom dcm_id generation."""
+        """UNIT TEST: Verifies clean creation of an entry with the custom dcm_id as its main key."""
         payload = {
             "title": "Engineering Textbook", 
             "category": "Books", 
-            "price_eur": 25.00,
+            "price_eur": 25.00
         }
         response = self.app.post('/api/listings', data=json.dumps(payload), content_type='application/json')
         data = json.loads(response.data)
         self.assertEqual(response.status_code, 201)
         
-        self.assertIn("id", data)
         self.assertIn("dcm_id", data)
+        self.assertNotIn("id", data) 
         
         self.assertTrue(re.match(r"^DCM-[A-Z0-9]{5}$", data["dcm_id"]))
 
@@ -72,10 +75,10 @@ class MarketplaceTestCase(unittest.TestCase):
         self.assertEqual(response.status_code, 400)
 
     def test_buy_now_status_update(self):
-        """FUNCTIONAL TEST: Verifies changing status to 'Sold' via simulated checkout (Buy Now)."""
+        """FUNCTIONAL TEST: Verifies changing status to 'Sold' via alphanumeric dcm_id routing."""
         item = {"title": "Yamaha YZF-R3", "category": "Motors", "price_eur": 3200.00}
         post_res = self.app.post('/api/listings', data=json.dumps(item), content_type='application/json')
-        item_id = json.loads(post_res.data)['id']
+        dcm_id = json.loads(post_res.data)['dcm_id']
 
         updated_payload = {
             "title": "Yamaha YZF-R3", 
@@ -83,12 +86,13 @@ class MarketplaceTestCase(unittest.TestCase):
             "price_eur": 3200.00, 
             "status": "Sold"
         }
-        put_res = self.app.put(f'/api/listings/{item_id}', data=json.dumps(updated_payload), content_type='application/json')
+
+        put_res = self.app.put(f'/api/listings/{dcm_id}', data=json.dumps(updated_payload), content_type='application/json')
         self.assertEqual(put_res.status_code, 200)
 
         get_res = self.app.get('/api/listings')
         listings = json.loads(get_res.data)
-        updated_item = next(x for x in listings if x['id'] == item_id)
+        updated_item = next(x for x in listings if x['dcm_id'] == dcm_id)
         self.assertEqual(updated_item['status'], "Sold")
 
     def test_expanded_search_criteria(self):
