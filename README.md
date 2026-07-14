@@ -15,15 +15,14 @@ A localized, classifieds application using a  Python stack. This full-stack syst
 The core infrastructure operates on Single-Page-Application model with a relational backend data layer:
 
 * **Frontend Client:** Vanilla HTML5, CSS Grid layouts, and JavaScript
-* **Backend REST Layer:** Python Flask RESTful routing API with session tracking.
-* **Relational Storage Engine:** SQLite3 relational schema utilizing strict foreign key constraints (`ON DELETE SET NULL`).
-* **Exchange integration:** Connects securely to `open.er-api.com` to deliver automatic real-time currency conversions from EUR base values into target USD amounts.
+* **Backend Layer:** Python Flask RESTful routing API with session tracking.
+* **Relational Storage Engine:** SQLite3 relational schema 
 
 ---
 
 ##  CRUD Operations
 
-project supports CRUD (Create, Read, Update, Delete) operations on the marketplace listings, secured by user authentication sessions.
+Application supports CRUD (Create, Read, Update, Delete) operations on the marketplace listings, secured by user authentication sessions.
 
 * **CREATE (Post an Advertisement):** When a logged-in user wants to sell an item, the frontend passes a payload consisting of title, category, and price_eur. The backend grabs the user's information from the session, and inserts a new row into the SQLite database with a default status as 'Available'.
     **Endpoint:** POST /api/listings
@@ -43,6 +42,7 @@ project supports CRUD (Create, Read, Update, Delete) operations on the marketpla
             Post, edit, delete and buy now for logged in user ads
             "Buy Now" flow that marks a listing as Sold
             Ownership checks: only the seller who posted an ad can edit or delete it
+            basic unit test and integration test execution
 
 ## 🚀 Ubuntu Server Deploy Guide (GCP)
 
