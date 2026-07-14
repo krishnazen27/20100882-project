@@ -5,22 +5,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Dublin Classifieds Marketplace{% endblock %}</title>
 </head>
-<body>
+<body style="font-family: Arial, sans-serif;">
 
-    <!-- Navigation Menu built with plain HTML layout -->
-    <div id="navbar" style="border-bottom: 2px solid #716c99; margin-bottom: 20px; padding-bottom: 10px;">
-        <a href="/" id="nav-buying" style="padding: 10px 20px; text-decoration: none; color: black; margin-right: 5px; font-size: 16px; background-color: #d0e3e7;">Browse Marketplace</a>
-        <a href="/selling" id="nav-selling" style="padding: 10px 20px; text-decoration: none; color: black; margin-right: 5px; font-size: 16px; background-color: #d0e3e7;">Sell an Item</a>
-        <a href="/profile" id="nav-profile" style="padding: 10px 20px; text-decoration: none; color: black; margin-right: 5px; font-size: 16px; background-color: #d0e3e7;">User Info</a>
+    <!-- Minimalistic text link navigation header -->
+    <div id="navbar">
+        <a href="/">Browse Marketplace</a> | 
+        <a href="/selling">Sell an Item</a> | 
+        <a href="/profile">User Info</a>
     </div>
+    <hr>
 
-    <div id="session-banner" style="font-weight: bold; padding: 8px; margin-bottom: 15px; background-color: #e2e3e5;">
+    <div id="session-banner">
         {% if session.get('username') %}
             Active Session: Logged in as <strong>{{ session.get('username') }}</strong>
         {% else %}
             Guest Session (Unauthenticated)
         {% endif %}
     </div>
+    <hr>
 
     <div>
         {% block content %}{% endblock %}
@@ -28,19 +30,6 @@
 
     <script>
         const API_BASE = `${window.location.protocol}//${window.location.host}/api`;
-
-        // Manage active link colors purely via JavaScript instead of CSS pseudo-classes
-        const activePage = "{{ active_page }}";
-        if (activePage === 'buying') {
-            const el = document.getElementById('nav-buying');
-            if (el) { el.style.backgroundColor = '#007bff'; el.style.color = 'white'; el.style.fontWeight = 'bold'; }
-        } else if (activePage === 'selling') {
-            const el = document.getElementById('nav-selling');
-            if (el) { el.style.backgroundColor = '#007bff'; el.style.color = 'white'; el.style.fontWeight = 'bold'; }
-        } else if (activePage === 'profile') {
-            const el = document.getElementById('nav-profile');
-            if (el) { el.style.backgroundColor = '#007bff'; el.style.color = 'white'; el.style.fontWeight = 'bold'; }
-        }
     </script>
     {% block scripts %}{% endblock %}
 </body>
