@@ -127,21 +127,20 @@ Application supports CRUD (Create, Read, Update, Delete) operations on the marke
 ## 📌 Referances and sources used for developing this application are as below
 
 **Python , Flask & SQLite tutorials:**
-https://realpython.com/html-css-python/
-https://www.geeksforgeeks.org/python/flask-tutorial/
-https://flask.palletsprojects.com/en/stable/tutorial/templates/
-https://www.geeksforgeeks.org/python/how-to-build-a-web-app-using-flask-and-sqlite-in-python/
-https://www.youtube.com/watch?v=oQWkuJhSMCQ&list=PLbMVPNscUopQM1LHytgb2ePWH9QSZfnBv
-https://docs.python.org/3/library/sqlite3.html
+* https://realpython.com/html-css-python/
+* https://www.geeksforgeeks.org/python/flask-tutorial/
+* https://flask.palletsprojects.com/en/stable/tutorial/templates/
+* https://www.geeksforgeeks.org/python/how-to-build-a-web-app-using-flask-and-sqlite-in-python/
+* https://www.youtube.com/watch?v=oQWkuJhSMCQ&list=PLbMVPNscUopQM1LHytgb2ePWH9QSZfnBv
+* https://docs.python.org/3/library/sqlite3.html
 
 **Readme file update syntax:**
-Readme file update syntax:
-https://share.gemini.google/QjGPIPJW7MpD
+* https://share.gemini.google/QjGPIPJW7MpD
 
 **Gemini AI chats used:**
-https://share.gemini.google/aXUbbGZysDga
-https://share.gemini.google/fPow9rjXEeKz
-https://share.gemini.google/Fe8x4ESGebk3
-https://share.gemini.google/76OmcVg9lJaD
-https://share.gemini.google/eYHiay3BwQ9D
-https://share.gemini.google/cJ3JBMOBk3JH
+* https://share.gemini.google/aXUbbGZysDga
+* https://share.gemini.google/fPow9rjXEeKz
+* https://share.gemini.google/Fe8x4ESGebk3
+* https://share.gemini.google/76OmcVg9lJaD
+* https://share.gemini.google/eYHiay3BwQ9D
+* https://share.gemini.google/cJ3JBMOBk3JH
