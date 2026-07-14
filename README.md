@@ -10,13 +10,50 @@ A localized, classifieds application using a  Python stack. This full-stack syst
 
 ---
 
-## 🛠️ System Architecture
+### Core Technologies & Software
 
 The core infrastructure operates on Single-Page-Application model with a relational backend data layer:
 
-* **Frontend Client:** Vanilla HTML5, CSS Grid layouts, and JavaScript
-* **Backend Layer:** Python Flask RESTful routing API with session tracking.
-* **Relational Storage Engine:** SQLite3 relational schema 
+* **Programming Languages:** * **Python 3.12+** (Backend logic and routing)
+  * **JavaScript** (Dynamic UI updates, sorting, and asynchronous API communication)
+  * **HTML5** (Layout presentation and structure)
+* **Frameworks & Core Libraries:**
+  * **Flask** - Lightweight micro-framework for serving pages and API endpoints.
+  * **Flask-Cors** - Handles Cross-Origin Resource Sharing for API security.
+  * **Werkzeug** - Handles secure, salted password hashing algorithm.
+* **Database Engine:**
+  * **SQLite3** - Serverless, self-contained relational database utilizing local file storage (`classifieds.db`).
+
+---
+
+## 🗄️ Relational Database Schema
+
+The SQLite database structure enforces relational integrity using foreign keys with cascading nulls on delete.
+
+### 1. `users` Table
+Stores authenticated member accounts and contact metrics.
+
+| Column | Data Type | Constraints | Description |
+| :--- | :--- | :--- | :--- |
+| `id` | INTEGER | PRIMARY KEY AUTOINCREMENT | Unique system identifier for each user. |
+| `username` | TEXT | NOT NULL, UNIQUE | User handle used during authentication. |
+| `password_hash` | TEXT | NOT NULL | Salted PBKDF2/Scrypt hash of the user password. |
+| `contact_info` | TEXT | NOT NULL | Phone number or email address of the seller. |
+
+### 2. `listings` Table
+Stores all classified advertisement assets posted by sellers.
+
+| Column | Data Type | Constraints | Description |
+| :--- | :--- | :--- | :--- |
+| `dcm_id` | TEXT | PRIMARY KEY | Custom generated token (e.g., `DCM-A1B2C`). |
+| `title` | TEXT | NOT NULL | Public headline of the listed item. |
+| `category` | TEXT | NOT NULL | Categorization (e.g., Electronics, Motors). |
+| `price_eur` | REAL | NOT NULL | Float representation of item cost in Euros (€). |
+| `seller_name` | TEXT | NOT NULL | Matches creator's `username` at creation. |
+| `contact_info` | TEXT | NOT NULL | Direct contact information of the advertiser. |
+| `status` | TEXT | NOT NULL, DEFAULT 'Available' | Current transactional state: `Available` or `Sold`. |
+| `seller_id` | INTEGER | FOREIGN KEY -> `users(id)` | Identifies the item creator. Resets to `NULL` on user deletion. |
+| `buyer_id` | INTEGER | FOREIGN KEY -> `users(id)` | Identifies the purchasing user. Resets to `NULL` on user deletion. |
 
 ---
 
@@ -85,3 +122,25 @@ Application supports CRUD (Create, Read, Update, Delete) operations on the marke
 <div align="center">
     <img src="images/userinfo.png" alt="userinfo Screen">
 </div>
+
+
+## 📌 Referances and sources used for developing this application are as below
+
+**Python , Flask & SQLite tutorials:**
+* https://realpython.com/html-css-python/
+* https://www.geeksforgeeks.org/python/flask-tutorial/
+* https://flask.palletsprojects.com/en/stable/tutorial/templates/
+* https://www.geeksforgeeks.org/python/how-to-build-a-web-app-using-flask-and-sqlite-in-python/
+* https://www.youtube.com/watch?v=oQWkuJhSMCQ&list=PLbMVPNscUopQM1LHytgb2ePWH9QSZfnBv
+* https://docs.python.org/3/library/sqlite3.html
+
+**Readme file update syntax:**
+* https://share.gemini.google/QjGPIPJW7MpD
+
+**Gemini AI chats used:**
+* https://share.gemini.google/aXUbbGZysDga
+* https://share.gemini.google/fPow9rjXEeKz
+* https://share.gemini.google/Fe8x4ESGebk3
+* https://share.gemini.google/76OmcVg9lJaD
+* https://share.gemini.google/eYHiay3BwQ9D
+* https://share.gemini.google/cJ3JBMOBk3JH
