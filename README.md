@@ -6,7 +6,7 @@ This Project is about a Dublin Classified Market place application. This allow u
 
 # Dublin Classifieds Marketplace
 
-A localized, classifieds application using a  Python stack. This full-stack system allows users to securely register accounts, sign in securely, post structured listings, edit asset data entries, and purchase goods using an asynchronous single-page checkout configuration.
+Dublin Classifieds Marketplace is a small full-stack web application that allows users to register, sign in, publish second-hand item advertisements, browse listings, search and sort products, mark items as sold, view purchases, edit their own advertisements and delete their own advertisements. The backend is implemented in Python using Flask. Persistent data is stored in SQLite. The user interface is rendered from Jinja2 HTML templates and enhanced using browser-side JavaScript and the Fetch API.
 
 ---
 
