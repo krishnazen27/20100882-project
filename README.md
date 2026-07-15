@@ -25,6 +25,23 @@ The core infrastructure operates on Single-Page-Application model with a relatio
   * **SQLite3** - Serverless, self-contained relational database utilizing local file storage (`classifieds.db`).
 
 ---
+## API Summary
+
+| API                      | Method | Purpose                 | Authentication           |
+| ------------------------ | ------ | ----------------------- | ------------------------ |
+| `/`                      | GET    | Open Marketplace page   | No                       |
+| `/selling`               | GET    | Open Selling page       | No (page checks session) |
+| `/profile`               | GET    | Open Login/Profile page | No                       |
+| `/api/auth/register`     | POST   | Register new user       | No                       |
+| `/api/auth/login`        | POST   | Login user              | No                       |
+| `/api/auth/logout`       | POST   | Logout current user     | Yes                      |
+| `/api/auth/session`      | GET    | Check current session   | No                       |
+| `/api/listings`          | POST   | Create new listing      | Yes                      |
+| `/api/listings`          | GET    | Get/Search listings     | No                       |
+| `/api/listings/<dcm_id>` | PUT    | Update or Buy listing   | Depends                  |
+| `/api/listings/<dcm_id>` | DELETE | Delete listing          | Yes                      |
+
+---
 
 ## 🗄️ Relational Database Schema
 
